@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Domain.Entities;
 
-namespace BLL.Interfaces
+namespace BLL.Interfaces;
+
+public interface ITournoiService
 {
-    internal class ITournoiService
-    {
-    }
+    Task<List<Tournoi>> GetAllAsync();
+
+    Task<Tournoi?> GetByIdAsync(int id);
+
+    Task<int> CreateAsync(Tournoi tournoi);
 }

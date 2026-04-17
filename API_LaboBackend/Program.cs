@@ -16,6 +16,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IJoueurRepository, JoueurRepository>();
 builder.Services.AddScoped<IJoueurService, JoueurService>();
 
+builder.Services.AddScoped<ITournoiRepository, TournoiRepository>();
+builder.Services.AddScoped<ITournoiService, TournoiService>();
+
 
 var app = builder.Build();
 

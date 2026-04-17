@@ -1,6 +1,7 @@
 ﻿using DAL.Interfaces;
 using Domain.Entities;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 
 namespace DAL.Repositories;
 
@@ -8,9 +9,9 @@ public class TournoiRepository : ITournoiRepository
 {
     private readonly string _connectionString;
 
-    public TournoiRepository(string connection)
+    public TournoiRepository(IConfiguration configuration)
     {
-        _connectionString = connection;
+        _connectionString = configuration.GetConnectionString("DefaultConnection")!;
     }   
 
     public async Task<int> CreateAsync(Tournoi t)
@@ -68,8 +69,8 @@ public class TournoiRepository : ITournoiRepository
                 Lieu = reader["Lieu"].ToString() ?? "",
                 MinJoueurs = Convert.ToInt32(reader["MinJoueurs"]),
                 MaxJoueurs = Convert.ToInt32(reader["MaxJoueurs"]),
-                EloMin = Convert.ToInt32(reader["EloMin"]),
-                EloMax = Convert.ToInt32(reader["EloMax"]),
+                EloMin = reader["EloMin"] == DBNull.Value ? 0 : Convert.ToInt32(reader["EloMin"]),
+                EloMax = reader["EloMax"] == DBNull.Value ? 0 : Convert.ToInt32(reader["EloMax"]),
                 WomenOnly = Convert.ToBoolean(reader["WomenOnly"]),
                 DateFinInscriptions = Convert.ToDateTime(reader["DateFinInscriptions"]),
                 RondeCourante = Convert.ToInt32(reader["RondeCourante"]),
@@ -108,8 +109,8 @@ public class TournoiRepository : ITournoiRepository
                 Lieu = reader["Lieu"].ToString() ?? "",
                 MinJoueurs = Convert.ToInt32(reader["MinJoueurs"]),
                 MaxJoueurs = Convert.ToInt32(reader["MaxJoueurs"]),
-                EloMin = Convert.ToInt32(reader["EloMin"]),
-                EloMax = Convert.ToInt32(reader["EloMax"]),
+                EloMin = reader["EloMin"] == DBNull.Value ? 0 : Convert.ToInt32(reader["EloMin"]),
+                EloMax = reader["EloMax"] == DBNull.Value ? 0 : Convert.ToInt32(reader["EloMax"]),
                 WomenOnly = Convert.ToBoolean(reader["WomenOnly"]),
                 DateFinInscriptions = Convert.ToDateTime(reader["DateFinInscriptions"]),
                 RondeCourante = Convert.ToInt32(reader["RondeCourante"]),
