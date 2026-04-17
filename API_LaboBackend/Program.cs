@@ -1,19 +1,31 @@
+using API_LaboBackend.MiddleWares;
+using BLL.Interfaces;
+using BLL.Services;
+using DAL.Interfaces;
+using DAL.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IJoueurRepository, JoueurRepository>();
+builder.Services.AddScoped<IJoueurService, JoueurService>();
+
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
+app.UseExceptionHandler();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
