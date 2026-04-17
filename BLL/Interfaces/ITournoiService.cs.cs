@@ -9,4 +9,6 @@ public interface ITournoiService
     Task<Tournoi?> GetByIdAsync(int id);
 
     Task<int> CreateAsync(Tournoi tournoi);
+
+    Task DeleteAsync(int id);
 }

@@ -47,6 +47,20 @@ public class TournoiRepository : ITournoiRepository
         return Convert.ToInt32(await command.ExecuteScalarAsync());
     }
 
+    public async Task<bool> DeleteAsync(int id)
+    {
+        using SqlConnection connection = new SqlConnection(_connectionString);
+        string query = "DELETE FROM Tournoi WHERE Id = @Id AND GETDATE() > (SELECT DateFinInscriptions FROM Tournoi WHERE Id = @Id)";
+
+        using SqlCommand command = new SqlCommand(query, connection);
+        command.Parameters.AddWithValue("@Id", id);
+
+        await connection.OpenAsync();
+        int rowsAffected = await command.ExecuteNonQueryAsync();
+
+        return rowsAffected > 0;
+    }
+
     public async Task<List<Tournoi>> GetAllAsync()
     {
         List<Tournoi> tournois = new List<Tournoi>();

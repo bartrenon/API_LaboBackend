@@ -58,4 +58,12 @@ public class TournoiController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = tournoi.Id }, TournoiMapper.ToTournoiAllInfo(tournoi));
     }
 
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> Delete(int id)
+    {
+        await _tournoiService.DeleteAsync(id);
+
+        return NoContent();
+    }
+
 }

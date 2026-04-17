@@ -9,4 +9,6 @@ public interface ITournoiRepository
     Task<Tournoi?> GetByIdAsync(int id);
 
     Task<int> CreateAsync(Tournoi tournoi);
+
+    Task<bool> DeleteAsync(int id);
 }

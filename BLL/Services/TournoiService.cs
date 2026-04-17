@@ -1,6 +1,7 @@
 ﻿using BLL.Interfaces;
 using DAL.Interfaces;
 using Domain.Entities;
+using Microsoft.Data.SqlClient;
 
 namespace BLL.Services;
 
@@ -31,6 +32,28 @@ public class TournoiService : ITournoiService
         }
 
         return _tournoiRepository.CreateAsync(tournoi);
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        Tournoi? tournoi = _tournoiRepository.GetByIdAsync(id).Result;
+
+        if(tournoi == null)
+        {
+            throw new KeyNotFoundException("Ce tournoi n'exite pas");
+        }
+
+        if (tournoi.DateFinInscriptions < DateTime.Today)
+        {
+            throw new Exception("Il est imposible de suprimer un tournoi qui à déja commencé");
+        }
+
+        bool deleted = await _tournoiRepository.DeleteAsync(id);
+
+        if (!deleted)
+        {
+            throw new KeyNotFoundException("Tournoi introuvable");
+        }
     }
 
     public Task<List<Tournoi>> GetAllAsync()
