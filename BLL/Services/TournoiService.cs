@@ -65,4 +65,9 @@ public class TournoiService : ITournoiService
     {
         return _tournoiRepository.GetByIdAsync(id);
     }
+
+    public Task<List<Tournoi>> GetLastNotClosedAsync()
+    {
+        return _tournoiRepository.GetLastNotClosedAsync();
+    }
 }

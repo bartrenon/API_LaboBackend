@@ -1,8 +1,6 @@
-﻿using API_LaboBackend.DTO.Joueur;
-using API_LaboBackend.DTO.Tournoi;
+﻿using API_LaboBackend.DTO.Tournoi;
 using API_LaboBackend.Mappers;
 using BLL.Interfaces;
-using BLL.Services;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,6 +21,21 @@ public class TournoiController : ControllerBase
     public async Task<ActionResult<List<TournoiShortInfo>>> GetAll()
     {
         List<Tournoi> tournois = await _tournoiService.GetAllAsync();
+
+        List<TournoiShortInfo> result = new List<TournoiShortInfo>();
+
+        foreach (Tournoi tournoi in tournois)
+        {
+            result.Add(TournoiMapper.ToTournoiShortInfo(tournoi));
+        }
+
+        return Ok(result);
+    }
+
+    [HttpGet("recents")]
+    public async Task<ActionResult<List<TournoiShortInfo>>> GetLastNotClosed()
+    {
+        List<Tournoi> tournois = await _tournoiService.GetLastNotClosedAsync();
 
         List<TournoiShortInfo> result = new List<TournoiShortInfo>();
 

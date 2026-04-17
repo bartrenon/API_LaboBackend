@@ -6,6 +6,8 @@ public interface ITournoiService
 {
     Task<List<Tournoi>> GetAllAsync();
 
+    Task<List<Tournoi>> GetLastNotClosedAsync();
+
     Task<Tournoi?> GetByIdAsync(int id);
 
     Task<int> CreateAsync(Tournoi tournoi);

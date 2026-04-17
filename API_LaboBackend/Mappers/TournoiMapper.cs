@@ -12,7 +12,8 @@ public class TournoiMapper
             Nom = t.Nom,
             Lieu = t.Lieu,
             DateFinInscriptions = t.DateFinInscriptions,
-            Statut = t.Statut
+            Statut = t.Statut,
+            DateMiseAJour = t.DateMiseAJour
         };
     }
 
@@ -28,10 +29,6 @@ public class TournoiMapper
             EloMax = dto.EloMax,
             WomenOnly = dto.WomenOnly,
             DateFinInscriptions = dto.DateFinInscriptions,
-            RondeCourante = 0, 
-            Statut = "en attente de joueurs", 
-            DateCreation = DateTime.Now,
-            DateMiseAJour = DateTime.Now
         };
     }
 

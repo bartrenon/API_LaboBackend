@@ -11,4 +11,6 @@ public interface ITournoiRepository
     Task<int> CreateAsync(Tournoi tournoi);
 
     Task<bool> DeleteAsync(int id);
+
+    Task<List<Tournoi>> GetLastNotClosedAsync();
 }

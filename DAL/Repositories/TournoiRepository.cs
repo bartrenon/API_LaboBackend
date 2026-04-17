@@ -136,4 +136,43 @@ public class TournoiRepository : ITournoiRepository
 
         return tournoi;
     }
+
+    public async Task<List<Tournoi>> GetLastNotClosedAsync()
+    {
+        List<Tournoi> tournois = new List<Tournoi>();
+
+        using SqlConnection connection = new SqlConnection(_connectionString);
+        string query = "SELECT TOP 10 * FROM Tournoi WHERE Statut = 'En préparation' ORDER BY DateMiseAJour DESC";
+
+        using SqlCommand command = new SqlCommand(query, connection);
+
+        await connection.OpenAsync();
+
+        using SqlDataReader reader = await command.ExecuteReaderAsync();
+
+        while (reader.Read())
+        {
+            Tournoi tournoi = new Tournoi
+            {
+                Id = Convert.ToInt32(reader["Id"]),
+                Nom = reader["Nom"].ToString() ?? "",
+                Lieu = reader["Lieu"].ToString() ?? "",
+                MinJoueurs = Convert.ToInt32(reader["MinJoueurs"]),
+                MaxJoueurs = Convert.ToInt32(reader["MaxJoueurs"]),
+                EloMin = reader["EloMin"] == DBNull.Value ? 0 : Convert.ToInt32(reader["EloMin"]),
+                EloMax = reader["EloMax"] == DBNull.Value ? 0 : Convert.ToInt32(reader["EloMax"]),
+                WomenOnly = Convert.ToBoolean(reader["WomenOnly"]),
+                DateFinInscriptions = Convert.ToDateTime(reader["DateFinInscriptions"]),
+                RondeCourante = Convert.ToInt32(reader["RondeCourante"]),
+                Statut = reader["Statut"].ToString() ?? "",
+                DateCreation = Convert.ToDateTime(reader["DateCreation"]),
+                DateMiseAJour = Convert.ToDateTime(reader["DateMiseAJour"])
+            };
+
+
+            tournois.Add(tournoi);
+        }
+
+        return tournois;
+    }
 }
