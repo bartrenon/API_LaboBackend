@@ -5,7 +5,7 @@ namespace DAL.Mapper;
 
 public class TournoiMapper
 {
-    public static Tournoi MapToTournoi(SqlDataReader reader)
+    public static Tournoi ToTournoi(SqlDataReader reader)
     {
         return new Tournoi
         {

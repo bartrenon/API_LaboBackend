@@ -77,7 +77,7 @@ public class TournoiRepository : ITournoiRepository
 
         while (reader.Read())
         {
-            Tournoi tournoi = TournoiMapper.MapToTournoi(reader);
+            Tournoi tournoi = TournoiMapper.ToTournoi(reader);
 
             tournois.Add(tournoi);
         }
@@ -101,7 +101,7 @@ public class TournoiRepository : ITournoiRepository
 
         if (reader.Read())
         {
-            tournoi = TournoiMapper.MapToTournoi(reader);
+            tournoi = TournoiMapper.ToTournoi(reader);
         }
 
         return tournoi;
@@ -122,7 +122,7 @@ public class TournoiRepository : ITournoiRepository
 
         while (reader.Read())
         {
-            Tournoi tournoi = TournoiMapper.MapToTournoi(reader);
+            Tournoi tournoi = TournoiMapper.ToTournoi(reader);
 
             tournois.Add(tournoi);
         }

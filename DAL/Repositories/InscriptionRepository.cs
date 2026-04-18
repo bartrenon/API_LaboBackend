@@ -1,4 +1,6 @@
 ﻿using DAL.Interfaces;
+using DAL.Mapper;
+using DAL.Mappers;
 using Domain.Entities;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -32,7 +34,33 @@ public class InscriptionRepository : IInscriptionRepository
 
     public async Task<List<Inscription>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        List<Inscription> inscriptions = new List<Inscription>();
+
+        using SqlConnection connection = new SqlConnection(_connectionString);
+        string query = @"
+        SELECT i.*, j.*, t.*
+        FROM Inscription i
+        JOIN Joueur j ON j.Id = i.JoueurId
+        JOIN Tournoi t ON t.Id = i.TournoiId";
+
+        using SqlCommand command = new SqlCommand(query, connection);
+
+        await connection.OpenAsync();
+
+        using SqlDataReader reader = await command.ExecuteReaderAsync();
+
+        while (reader.Read())
+        {
+            Inscription inscription = InscriptionMapper.ToInscription(reader);
+
+            inscription.Joueur = JoueurMapper.ToJoueur(reader);
+
+            inscription.Tournoi = TournoiMapper.ToTournoi(reader);
+
+            inscriptions.Add(inscription);
+        }
+
+        return inscriptions;
     }
 
     public async Task<Inscription?> GetByIdAsync(int id)
@@ -56,41 +84,11 @@ public class InscriptionRepository : IInscriptionRepository
 
         if (reader.Read())
         {
-            inscription = new Inscription
-            {
-                Id = Convert.ToInt32(reader["Id"]),
-                JoueurId = reader.GetInt32(1),
-                TournoiId = reader.GetInt32(2),
-                DateInscription = reader.GetDateTime(3),
-            };
+            inscription = InscriptionMapper.ToInscription(reader);
 
-            inscription.Joueur = new Joueur
-            {
-                Id = Convert.ToInt32(reader["Id"]),
-                Pseudo = reader["Pseudo"].ToString() ?? "",
-                Email = reader["Email"].ToString() ?? "",
-                MotDePasseHash = reader["MotDePasseHash"].ToString() ?? "",
-                DateNaissance = Convert.ToDateTime(reader["DateNaissance"]),
-                Genre = reader["Genre"].ToString() ?? "",
-                Elo = Convert.ToInt32(reader["Elo"])
-            };
+            inscription.Joueur = JoueurMapper.ToJoueur(reader);
 
-            inscription.Tournoi = new Tournoi
-            {
-                Id = Convert.ToInt32(reader["Id"]),
-                Nom = reader["Nom"].ToString() ?? "",
-                Lieu = reader["Lieu"].ToString() ?? "",
-                MinJoueurs = Convert.ToInt32(reader["MinJoueurs"]),
-                MaxJoueurs = Convert.ToInt32(reader["MaxJoueurs"]),
-                EloMin = reader["EloMin"] == DBNull.Value ? 0 : Convert.ToInt32(reader["EloMin"]),
-                EloMax = reader["EloMax"] == DBNull.Value ? 0 : Convert.ToInt32(reader["EloMax"]),
-                WomenOnly = Convert.ToBoolean(reader["WomenOnly"]),
-                DateFinInscriptions = Convert.ToDateTime(reader["DateFinInscriptions"]),
-                RondeCourante = Convert.ToInt32(reader["RondeCourante"]),
-                Statut = reader["Statut"].ToString() ?? "",
-                DateCreation = Convert.ToDateTime(reader["DateCreation"]),
-                DateMiseAJour = Convert.ToDateTime(reader["DateMiseAJour"])
-            };
+            inscription.Tournoi = TournoiMapper.ToTournoi(reader);
         }
 
         return inscription;

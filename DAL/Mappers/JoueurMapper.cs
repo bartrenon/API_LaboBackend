@@ -5,7 +5,7 @@ namespace DAL.Mappers;
 
 public class JoueurMapper
 {
-    public static Joueur MapToJoueur(SqlDataReader reader)
+    public static Joueur ToJoueur(SqlDataReader reader)
     {
         return new Joueur
         {

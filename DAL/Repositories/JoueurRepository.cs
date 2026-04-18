@@ -48,7 +48,7 @@ public class JoueurRepository : IJoueurRepository
 
         while (reader.Read())
         {
-            Joueur joueur = JoueurMapper.MapToJoueur(reader);
+            Joueur joueur = JoueurMapper.ToJoueur(reader);
 
             joueurs.Add(joueur);
         }
@@ -72,7 +72,7 @@ public class JoueurRepository : IJoueurRepository
 
         if (reader.Read())
         {
-            joueur = JoueurMapper.MapToJoueur(reader);
+            joueur = JoueurMapper.ToJoueur(reader);
         }
 
         return joueur;

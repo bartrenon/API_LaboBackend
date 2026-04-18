@@ -21,11 +21,11 @@ public class InscriptionService : IInscriptionService
 
     public async Task<List<Inscription>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        return await _inscriptionRepository.GetAllAsync();
     }
 
     public async Task<Inscription?> GetByIdAsync(int id)
     {
-        throw new NotImplementedException();
+        return await _inscriptionRepository.GetByIdAsync(id);
     }
 }
