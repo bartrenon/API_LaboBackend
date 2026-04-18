@@ -1,4 +1,5 @@
 ﻿using DAL.Interfaces;
+using DAL.Mapper;
 using Domain.Entities;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -12,7 +13,7 @@ public class TournoiRepository : ITournoiRepository
     public TournoiRepository(IConfiguration configuration)
     {
         _connectionString = configuration.GetConnectionString("DefaultConnection")!;
-    }   
+    }
 
     public async Task<int> CreateAsync(Tournoi t)
     {
@@ -25,8 +26,7 @@ public class TournoiRepository : ITournoiRepository
         OUTPUT INSERTED.Id
         VALUES 
         (@Nom, @Lieu, @MinJoueurs, @MaxJoueurs, @EloMin, @EloMax, @WomenOnly,
-         @DateFinInscriptions, @RondeCourante, @Statut, @DateCreation, @DateMiseAJour);
-         ";
+         @DateFinInscriptions, @RondeCourante, @Statut, @DateCreation, @DateMiseAJour);";
 
         using SqlCommand command = new SqlCommand(query, connection);
 
@@ -50,7 +50,8 @@ public class TournoiRepository : ITournoiRepository
     public async Task<bool> DeleteAsync(int id)
     {
         using SqlConnection connection = new SqlConnection(_connectionString);
-        string query = "DELETE FROM Tournoi WHERE Id = @Id AND GETDATE() > (SELECT DateFinInscriptions FROM Tournoi WHERE Id = @Id)";
+        string query = @"DELETE FROM Tournoi WHERE Id = @Id AND 
+                            GETDATE() > (SELECT DateFinInscriptions FROM Tournoi WHERE Id = @Id)";
 
         using SqlCommand command = new SqlCommand(query, connection);
         command.Parameters.AddWithValue("@Id", id);
@@ -76,23 +77,7 @@ public class TournoiRepository : ITournoiRepository
 
         while (reader.Read())
         {
-            Tournoi tournoi = new Tournoi
-            {
-                Id = Convert.ToInt32(reader["Id"]),
-                Nom = reader["Nom"].ToString() ?? "",
-                Lieu = reader["Lieu"].ToString() ?? "",
-                MinJoueurs = Convert.ToInt32(reader["MinJoueurs"]),
-                MaxJoueurs = Convert.ToInt32(reader["MaxJoueurs"]),
-                EloMin = reader["EloMin"] == DBNull.Value ? 0 : Convert.ToInt32(reader["EloMin"]),
-                EloMax = reader["EloMax"] == DBNull.Value ? 0 : Convert.ToInt32(reader["EloMax"]),
-                WomenOnly = Convert.ToBoolean(reader["WomenOnly"]),
-                DateFinInscriptions = Convert.ToDateTime(reader["DateFinInscriptions"]),
-                RondeCourante = Convert.ToInt32(reader["RondeCourante"]),
-                Statut = reader["Statut"].ToString() ?? "",
-                DateCreation = Convert.ToDateTime(reader["DateCreation"]),
-                DateMiseAJour = Convert.ToDateTime(reader["DateMiseAJour"])
-            };
-
+            Tournoi tournoi = TournoiMapper.MapToTournoi(reader);
 
             tournois.Add(tournoi);
         }
@@ -116,22 +101,7 @@ public class TournoiRepository : ITournoiRepository
 
         if (reader.Read())
         {
-            tournoi = new Tournoi
-            {
-                Id = Convert.ToInt32(reader["Id"]),
-                Nom = reader["Nom"].ToString() ?? "",
-                Lieu = reader["Lieu"].ToString() ?? "",
-                MinJoueurs = Convert.ToInt32(reader["MinJoueurs"]),
-                MaxJoueurs = Convert.ToInt32(reader["MaxJoueurs"]),
-                EloMin = reader["EloMin"] == DBNull.Value ? 0 : Convert.ToInt32(reader["EloMin"]),
-                EloMax = reader["EloMax"] == DBNull.Value ? 0 : Convert.ToInt32(reader["EloMax"]),
-                WomenOnly = Convert.ToBoolean(reader["WomenOnly"]),
-                DateFinInscriptions = Convert.ToDateTime(reader["DateFinInscriptions"]),
-                RondeCourante = Convert.ToInt32(reader["RondeCourante"]),
-                Statut = reader["Statut"].ToString() ?? "",
-                DateCreation = Convert.ToDateTime(reader["DateCreation"]),
-                DateMiseAJour = Convert.ToDateTime(reader["DateMiseAJour"])
-            };
+            tournoi = TournoiMapper.MapToTournoi(reader);
         }
 
         return tournoi;
@@ -152,23 +122,7 @@ public class TournoiRepository : ITournoiRepository
 
         while (reader.Read())
         {
-            Tournoi tournoi = new Tournoi
-            {
-                Id = Convert.ToInt32(reader["Id"]),
-                Nom = reader["Nom"].ToString() ?? "",
-                Lieu = reader["Lieu"].ToString() ?? "",
-                MinJoueurs = Convert.ToInt32(reader["MinJoueurs"]),
-                MaxJoueurs = Convert.ToInt32(reader["MaxJoueurs"]),
-                EloMin = reader["EloMin"] == DBNull.Value ? 0 : Convert.ToInt32(reader["EloMin"]),
-                EloMax = reader["EloMax"] == DBNull.Value ? 0 : Convert.ToInt32(reader["EloMax"]),
-                WomenOnly = Convert.ToBoolean(reader["WomenOnly"]),
-                DateFinInscriptions = Convert.ToDateTime(reader["DateFinInscriptions"]),
-                RondeCourante = Convert.ToInt32(reader["RondeCourante"]),
-                Statut = reader["Statut"].ToString() ?? "",
-                DateCreation = Convert.ToDateTime(reader["DateCreation"]),
-                DateMiseAJour = Convert.ToDateTime(reader["DateMiseAJour"])
-            };
-
+            Tournoi tournoi = TournoiMapper.MapToTournoi(reader);
 
             tournois.Add(tournoi);
         }
