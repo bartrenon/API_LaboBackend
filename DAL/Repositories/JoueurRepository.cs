@@ -1,4 +1,5 @@
 ﻿using DAL.Interfaces;
+using DAL.Mappers;
 using Domain.Entities;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -47,16 +48,7 @@ public class JoueurRepository : IJoueurRepository
 
         while (reader.Read())
         {
-            Joueur joueur = new Joueur
-            {
-                Id = Convert.ToInt32(reader["Id"]),
-                Pseudo = reader["Pseudo"].ToString() ?? "",
-                Email = reader["Email"].ToString() ?? "",
-                MotDePasseHash = reader["MotDePasseHash"].ToString() ?? "",
-                DateNaissance = Convert.ToDateTime(reader["DateNaissance"]),
-                Genre = reader["Genre"].ToString() ?? "",
-                Elo = Convert.ToInt32(reader["Elo"])
-            };
+            Joueur joueur = JoueurMapper.MapToJoueur(reader);
 
             joueurs.Add(joueur);
         }
@@ -80,16 +72,7 @@ public class JoueurRepository : IJoueurRepository
 
         if (reader.Read())
         {
-            joueur = new Joueur
-            {
-                Id = Convert.ToInt32(reader["Id"]),
-                Pseudo = reader["Pseudo"].ToString() ?? "",
-                Email = reader["Email"].ToString() ?? "",
-                MotDePasseHash = reader["MotDePasseHash"].ToString() ?? "",
-                DateNaissance = Convert.ToDateTime(reader["DateNaissance"]),
-                Genre = reader["Genre"].ToString() ?? "",
-                Elo = Convert.ToInt32(reader["Elo"])
-            };
+            joueur = JoueurMapper.MapToJoueur(reader);
         }
 
         return joueur;
