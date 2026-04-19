@@ -7,5 +7,5 @@ public class Categorie
     public int AgeMin { get; set; }
     public int AgeMax { get; set; }
 
-    public IEnumerable<Tournoi> Tournois { get; set; } = new List<Tournoi>();
+    public List<Tournoi> Tournois { get; set; } = new List<Tournoi>();
 }

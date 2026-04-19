@@ -35,60 +35,53 @@ public class CategorieRepository : ICategorieRepository
     public async Task<List<Categorie>> GetAllAsync()
     {
         List<Categorie> categories = new List<Categorie>();
-        List<Tournoi> tournois = new List<Tournoi>();
-        Categorie? categorie = null; 
-        int categorieId = 0;
 
         using SqlConnection connection = new SqlConnection(_connectionString);
-        
+
         string query = @"SELECT 
-                       c.Id AS CategorieId,
-                       c.Nom AS CategorieNom,
-                       c.AgeMin,c.AgeMax,
-                       t.Id AS TournoiId,
-                       t.Nom AS TournoiNom,
-                       t.Lieu,t.MinJoueurs,t.MaxJoueurs,t.EloMin,t.EloMax,t.Statut,t.RondeCourante,t.WomenOnly,
-                       t.DateFinInscriptions,t.DateCreation,t.DateMiseAJour
-                       FROM Categorie c
-                       JOIN TournoiCategorie tc ON c.Id = tc.CategorieId
-                       JOIN Tournoi t ON t.Id = tc.TournoiId;";
+                        c.Id AS CategorieId,
+                        c.Nom AS CategorieNom,
+                        c.AgeMin, c.AgeMax,
+                        t.Id AS TournoiId,
+                        t.Nom AS TournoiNom,
+                        t.Lieu, t.MinJoueurs, t.MaxJoueurs, t.EloMin, t.EloMax, t.Statut, t.RondeCourante, t.WomenOnly,
+                        t.DateFinInscriptions, t.DateCreation, t.DateMiseAJour
+                        FROM Categorie c
+                        LEFT JOIN TournoiCategorie tc ON c.Id = tc.CategorieId
+                        LEFT JOIN Tournoi t ON t.Id = tc.TournoiId;";
 
         using SqlCommand command = new SqlCommand(query, connection);
-
         await connection.OpenAsync();
 
         using SqlDataReader reader = await command.ExecuteReaderAsync();
 
         while (reader.Read())
         {
-            categorieId = Convert.ToInt32(reader["CategorieId"]);
+            int categorieId = Convert.ToInt32(reader["CategorieId"]);
 
-            categorie = categories.FirstOrDefault(c => c.Id == categorieId);
+        
+            var categorie = categories.FirstOrDefault(c => c.Id == categorieId);
 
             if (categorie == null)
             {
+            
                 categorie = CategorieMapper.ToCategorieFromJoin(reader);
-
+                categorie.Tournois = new List<Tournoi>();
                 categories.Add(categorie);
-
-                if (tournois.Count() != 0) 
-                {
-                    categorie.Tournois = tournois;
-                    tournois.Clear();
-                }
-                else 
-                {
-                    tournois.Add(TournoiMapper.ToTournoiFromJoin(reader));
-                }
             }
-            else 
+
+        
+            var tournoi = TournoiMapper.ToTournoiFromJoin(reader);
+
+            if (tournoi != null)
             {
-                tournois.Add(TournoiMapper.ToTournoiFromJoin(reader));
+                categorie.Tournois.Add(tournoi);
             }
-        }
-
-        return categories;
     }
+
+    return categories;
+}
+
 
     public async Task<Categorie?> GetByIdAsync(int id)
     {
@@ -105,8 +98,8 @@ public class CategorieRepository : ICategorieRepository
                        t.Lieu,t.MinJoueurs,t.MaxJoueurs,t.EloMin,t.EloMax,t.Statut,t.RondeCourante,t.WomenOnly,
                        t.DateFinInscriptions,t.DateCreation,t.DateMiseAJour
                        FROM Categorie c
-                       JOIN TournoiCategorie tc ON c.Id = tc.CategorieId
-                       JOIN Tournoi t ON t.Id = tc.TournoiId
+                       LEFT JOIN TournoiCategorie tc ON c.Id = tc.CategorieId
+                       LEFT JOIN Tournoi t ON t.Id = tc.TournoiId
                        WHERE c.Id = @Id; ";
 
 
@@ -121,11 +114,15 @@ public class CategorieRepository : ICategorieRepository
         {
             categorie = CategorieMapper.ToCategorieFromJoin(reader);
 
-            tournois.Add(TournoiMapper.ToTournoiFromJoin(reader));
-            
+            var tournoi = TournoiMapper.ToTournoiFromJoin(reader);
+            if (tournoi != null)
+                tournois.Add(tournoi);
+
             while (reader.Read())
             {
-                tournois.Add(TournoiMapper.ToTournoiFromJoin(reader));
+                tournoi = TournoiMapper.ToTournoiFromJoin(reader);
+                if (tournoi != null)
+                    tournois.Add(tournoi);
             }
 
             categorie.Tournois = tournois;

@@ -25,8 +25,11 @@ public class TournoiMapper
         };
     }
 
-    public static Tournoi ToTournoiFromJoin(SqlDataReader reader)
+    public static Tournoi? ToTournoiFromJoin(SqlDataReader reader)
     {
+        if (reader["TournoiId"] == DBNull.Value)
+            return null;
+
         return new Tournoi
         {
             Id = Convert.ToInt32(reader["TournoiId"]),

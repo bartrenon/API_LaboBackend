@@ -12,8 +12,8 @@ public class CategorieMapper
             Id = Convert.ToInt32(reader["Id"]),
             Nom = reader["Nom"].ToString() ?? "",
             AgeMax = Convert.ToInt32(reader["AgeMax"]),
-            AgeMin = Convert.ToInt32(reader["AgeMin"])
-
+            AgeMin = Convert.ToInt32(reader["AgeMin"]),
+            Tournois = new List<Tournoi>()
         };
     }
 
@@ -25,6 +25,7 @@ public class CategorieMapper
             Nom = reader["CategorieNom"].ToString() ?? "",
             AgeMax = Convert.ToInt32(reader["AgeMax"]),
             AgeMin = Convert.ToInt32(reader["AgeMin"]),
+            Tournois = new List<Tournoi>()
         };
     }
 }
