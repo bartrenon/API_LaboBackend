@@ -1,10 +1,12 @@
 ﻿using Domain.Entities;
 
-namespace DAL.Interfaces;
+namespace BLL.Interfaces;
 
-public interface ICategorieRepository
+public interface ICategorieService
 {
-    Task<List<Categorie>> GetAllAsync(); 
+    Task<List<Categorie>> GetAllAsync();
+
     Task<Categorie?> GetByIdAsync(int id);
+
     Task<int> CreateAsync(Categorie categorie);
 }

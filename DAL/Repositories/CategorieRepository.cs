@@ -16,7 +16,7 @@ public class CategorieRepository : ICategorieRepository
         _connectionString = configuration.GetConnectionString("DefaultConnection")!; ;
     }
 
-    public async Task<int> Create(Categorie c)
+    public async Task<int> CreateAsync(Categorie c)
     {
         using SqlConnection connection = new SqlConnection(_connectionString);
         string query = @"
@@ -32,16 +32,26 @@ public class CategorieRepository : ICategorieRepository
         return Convert.ToInt32(await command.ExecuteScalarAsync());
     }
 
-    public async Task<IEnumerable<Categorie>> GetAllAsync()
+    public async Task<List<Categorie>> GetAllAsync()
     {
         List<Categorie> categories = new List<Categorie>();
+        List<Tournoi> tournois = new List<Tournoi>();
+        Categorie? categorie = null; 
+        int categorieId = 0;
 
         using SqlConnection connection = new SqlConnection(_connectionString);
-        string query = @"
-               SELECT c.*, t.*
-               FROM Categorie c
-               JOIN TournoiCategorie tc ON c.Id = tc.CategorieId
-               JOIN Tournoi t ON t.Id = tc.TournoiId;";
+        
+        string query = @"SELECT 
+                       c.Id AS CategorieId,
+                       c.Nom AS CategorieNom,
+                       c.AgeMin,c.AgeMax,
+                       t.Id AS TournoiId,
+                       t.Nom AS TournoiNom,
+                       t.Lieu,t.MinJoueurs,t.MaxJoueurs,t.EloMin,t.EloMax,t.Statut,t.RondeCourante,t.WomenOnly,
+                       t.DateFinInscriptions,t.DateCreation,t.DateMiseAJour
+                       FROM Categorie c
+                       JOIN TournoiCategorie tc ON c.Id = tc.CategorieId
+                       JOIN Tournoi t ON t.Id = tc.TournoiId;";
 
         using SqlCommand command = new SqlCommand(query, connection);
 
@@ -51,28 +61,54 @@ public class CategorieRepository : ICategorieRepository
 
         while (reader.Read())
         {
-            Categorie inscription = InscriptionMapper.ToInscription(reader);
+            categorieId = Convert.ToInt32(reader["CategorieId"]);
 
+            categorie = categories.FirstOrDefault(c => c.Id == categorieId);
 
-            inscription.Tournoi = TournoiMapper.ToTournoi(reader);
+            if (categorie == null)
+            {
+                categorie = CategorieMapper.ToCategorieFromJoin(reader);
 
-            inscriptions.Add(inscription);
+                categories.Add(categorie);
+
+                if (tournois.Count() != 0) 
+                {
+                    categorie.Tournois = tournois;
+                    tournois.Clear();
+                }
+                else 
+                {
+                    tournois.Add(TournoiMapper.ToTournoiFromJoin(reader));
+                }
+            }
+            else 
+            {
+                tournois.Add(TournoiMapper.ToTournoiFromJoin(reader));
+            }
         }
 
-        return inscriptions;
+        return categories;
     }
 
     public async Task<Categorie?> GetByIdAsync(int id)
     {
-        Inscription? inscription = null;
+        Categorie? categorie = null;
+        List<Tournoi> tournois = new List<Tournoi>();
 
         using SqlConnection connection = new SqlConnection(_connectionString);
-        string query = @"
-        SELECT i.*, j.*, t.*
-        FROM Inscription i
-        JOIN Joueur j ON j.Id = i.JoueurId
-        JOIN Tournoi t ON t.Id = i.TournoiId
-        WHERE i.Id = @Id;";
+        string query = @"SELECT 
+                       c.Id AS CategorieId,
+                       c.Nom AS CategorieNom,
+                       c.AgeMin,c.AgeMax,
+                       t.Id AS TournoiId,
+                       t.Nom AS TournoiNom,
+                       t.Lieu,t.MinJoueurs,t.MaxJoueurs,t.EloMin,t.EloMax,t.Statut,t.RondeCourante,t.WomenOnly,
+                       t.DateFinInscriptions,t.DateCreation,t.DateMiseAJour
+                       FROM Categorie c
+                       JOIN TournoiCategorie tc ON c.Id = tc.CategorieId
+                       JOIN Tournoi t ON t.Id = tc.TournoiId
+                       WHERE c.Id = @Id; ";
+
 
         using SqlCommand command = new SqlCommand(query, connection);
         command.Parameters.AddWithValue("@Id", id);
@@ -83,13 +119,18 @@ public class CategorieRepository : ICategorieRepository
 
         if (reader.Read())
         {
-            inscription = InscriptionMapper.ToInscription(reader);
+            categorie = CategorieMapper.ToCategorieFromJoin(reader);
 
-            inscription.Joueur = JoueurMapper.ToJoueur(reader);
+            tournois.Add(TournoiMapper.ToTournoiFromJoin(reader));
+            
+            while (reader.Read())
+            {
+                tournois.Add(TournoiMapper.ToTournoiFromJoin(reader));
+            }
 
-            inscription.Tournoi = TournoiMapper.ToTournoi(reader);
+            categorie.Tournois = tournois;
         }
 
-        return inscription;
+        return categorie ;
     }
 }

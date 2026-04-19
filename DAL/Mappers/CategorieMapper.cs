@@ -9,12 +9,22 @@ public class CategorieMapper
     {
         return new Categorie
         {
-
             Id = Convert.ToInt32(reader["Id"]),
             Nom = reader["Nom"].ToString() ?? "",
             AgeMax = Convert.ToInt32(reader["AgeMax"]),
             AgeMin = Convert.ToInt32(reader["AgeMin"])
 
+        };
+    }
+
+    public static Categorie ToCategorieFromJoin(SqlDataReader reader)
+    {
+        return new Categorie
+        {
+            Id = Convert.ToInt32(reader["CategorieId"]),
+            Nom = reader["CategorieNom"].ToString() ?? "",
+            AgeMax = Convert.ToInt32(reader["AgeMax"]),
+            AgeMin = Convert.ToInt32(reader["AgeMin"]),
         };
     }
 }

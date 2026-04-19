@@ -10,9 +10,21 @@ public class InscriptionMapper
         return new Inscription
         {
             Id = Convert.ToInt32(reader["Id"]),
-            JoueurId = reader.GetInt32(1),
-            TournoiId = reader.GetInt32(2),
-            DateInscription = reader.GetDateTime(3),
+            JoueurId = Convert.ToInt32(reader["JoueurId"]),
+            TournoiId = Convert.ToInt32(reader["TournoiId"]),
+            DateInscription = Convert.ToDateTime(reader["DateInscription"]),
         };
     }
+
+    public static Inscription ToInscriptionFromJoin(SqlDataReader reader)
+    {
+        return new Inscription
+        {
+            Id = Convert.ToInt32(reader["InscriptionId"]),
+            JoueurId = Convert.ToInt32(reader["JoueurId"]),
+            TournoiId = Convert.ToInt32(reader["TournoiId"]),
+            DateInscription = Convert.ToDateTime(reader["DateInscription"])
+        };
+    }
+
 }

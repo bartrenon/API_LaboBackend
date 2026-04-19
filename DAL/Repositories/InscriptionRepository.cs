@@ -37,11 +37,17 @@ public class InscriptionRepository : IInscriptionRepository
         List<Inscription> inscriptions = new List<Inscription>();
 
         using SqlConnection connection = new SqlConnection(_connectionString);
-        string query = @"
-        SELECT i.*, j.*, t.*
-        FROM Inscription i
-        JOIN Joueur j ON j.Id = i.JoueurId
-        JOIN Tournoi t ON t.Id = i.TournoiId";
+        string query = @"SELECT 
+                       i.Id AS InscriptionId,
+                       i.JoueurId,i.TournoiId,i.DateInscription,
+                       j.Id AS JoueurIdAlias,j.Pseudo,j.Email,j.MotDePasseHash,j.DateNaissance,j.Genre,j.Elo,
+                       t.Id AS TournoiIdAlias,
+                       t.Nom AS TournoiNom,
+                       t.Lieu,t.MinJoueurs,t.MaxJoueurs,t.EloMin,t.EloMax,t.Statut,t.RondeCourante,t.WomenOnly,
+                       t.DateFinInscriptions,t.DateCreation,t.DateMiseAJour
+                       FROM Inscription i
+                       JOIN Joueur j ON j.Id = i.JoueurId
+                       JOIN Tournoi t ON t.Id = i.TournoiId;";
 
         using SqlCommand command = new SqlCommand(query, connection);
 
@@ -51,11 +57,11 @@ public class InscriptionRepository : IInscriptionRepository
 
         while (reader.Read())
         {
-            Inscription inscription = InscriptionMapper.ToInscription(reader);
+            Inscription inscription = InscriptionMapper.ToInscriptionFromJoin(reader);
 
-            inscription.Joueur = JoueurMapper.ToJoueur(reader);
+            inscription.Joueur = JoueurMapper.ToJoueurFromJoin(reader);
 
-            inscription.Tournoi = TournoiMapper.ToTournoi(reader);
+            inscription.Tournoi = TournoiMapper.ToTournoiFromJoin(reader);
 
             inscriptions.Add(inscription);
         }
@@ -68,12 +74,19 @@ public class InscriptionRepository : IInscriptionRepository
         Inscription? inscription = null;
 
         using SqlConnection connection = new SqlConnection(_connectionString);
-        string query = @"
-        SELECT i.*, j.*, t.*
-        FROM Inscription i
-        JOIN Joueur j ON j.Id = i.JoueurId
-        JOIN Tournoi t ON t.Id = i.TournoiId
-        WHERE i.Id = @Id;";
+        string query = @"SELECT 
+                       i.Id AS InscriptionId,
+                       i.JoueurId,i.TournoiId,i.DateInscription,
+                       j.Id AS JoueurIdAlias,j.Pseudo,j.Email,j.MotDePasseHash,j.DateNaissance,j.Genre,j.Elo,
+                       t.Id AS TournoiIdAlias,
+                       t.Nom AS TournoiNom,
+                       t.Lieu,t.MinJoueurs,t.MaxJoueurs,t.EloMin,t.EloMax,t.Statut,t.RondeCourante,t.WomenOnly,
+                       t.DateFinInscriptions,t.DateCreation,t.DateMiseAJour
+                       FROM Inscription i
+                       JOIN Joueur j ON j.Id = i.JoueurId
+                       JOIN Tournoi t ON t.Id = i.TournoiId
+                       WHERE i.Id = @Id;";
+
 
         using SqlCommand command = new SqlCommand(query, connection);
         command.Parameters.AddWithValue("@Id", id);
@@ -84,11 +97,11 @@ public class InscriptionRepository : IInscriptionRepository
 
         if (reader.Read())
         {
-            inscription = InscriptionMapper.ToInscription(reader);
+            inscription = InscriptionMapper.ToInscriptionFromJoin(reader);
 
-            inscription.Joueur = JoueurMapper.ToJoueur(reader);
+            inscription.Joueur = JoueurMapper.ToJoueurFromJoin(reader);
 
-            inscription.Tournoi = TournoiMapper.ToTournoi(reader);
+            inscription.Tournoi = TournoiMapper.ToTournoiFromJoin(reader);
         }
 
         return inscription;

@@ -22,6 +22,9 @@ builder.Services.AddScoped<ITournoiService, TournoiService>();
 builder.Services.AddScoped<IInscriptionRepository, InscriptionRepository>();
 builder.Services.AddScoped<IInscriptionService, InscriptionService>();
 
+builder.Services.AddScoped<ICategorieRepository, CategorieRepository>();
+builder.Services.AddScoped<ICategorieService, CategorieService>();
+
 
 var app = builder.Build();
 
