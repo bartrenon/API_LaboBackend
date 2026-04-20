@@ -30,7 +30,7 @@ public class RencontreRepository : IRencontreRepository
         command.Parameters.AddWithValue("@Ronde", r.Ronde);
         command.Parameters.AddWithValue("@JoueurBlancId", r.JoueurBlancId);
         command.Parameters.AddWithValue("@JoueurNoirId", r.JoueurNoirId);
-        command.Parameters.AddWithValue("@Resultat", r.Resultat);
+        command.Parameters.AddWithValue("@Resultat", (object?)r.Resultat ?? DBNull.Value);
 
         await connection.OpenAsync();
         return Convert.ToInt32(await command.ExecuteScalarAsync());
@@ -50,11 +50,15 @@ public class RencontreRepository : IRencontreRepository
                                 jb.Pseudo AS JoueurBlancPseudo,
                                 jb.Email AS JoueurBlancEmail,
                                 jb.Elo AS JoueurBlancElo,
+                                jb.DateNaissance AS JoueurBlancDateNaissance,
+                                jb.Genre AS JoueurBlancGenre,
 
                                 jn.Id AS JoueurNoirIdAlias,
                                 jn.Pseudo AS JoueurNoirPseudo,
                                 jn.Email AS JoueurNoirEmail,
                                 jn.Elo AS JoueurNoirElo,
+                                jn.DateNaissance AS JoueurNoirDateNaissance,
+                                jn.Genre AS JoueurNoirGenre,
 
                                 t.Id AS TournoiIdAlias,
                                 t.Nom AS TournoiNom,
@@ -100,11 +104,15 @@ public class RencontreRepository : IRencontreRepository
                                 jb.Pseudo AS JoueurBlancPseudo,
                                 jb.Email AS JoueurBlancEmail,
                                 jb.Elo AS JoueurBlancElo,
+                                jb.DateNaissance AS JoueurBlancDateNaissance,
+                                jb.Genre AS JoueurBlancGenre,
 
                                 jn.Id AS JoueurNoirIdAlias,
                                 jn.Pseudo AS JoueurNoirPseudo,
                                 jn.Email AS JoueurNoirEmail,
                                 jn.Elo AS JoueurNoirElo,
+                                jn.DateNaissance AS JoueurNoirDateNaissance,
+                                jn.Genre AS JoueurNoirGenre,
 
                                 t.Id AS TournoiIdAlias,
                                 t.Nom AS TournoiNom,

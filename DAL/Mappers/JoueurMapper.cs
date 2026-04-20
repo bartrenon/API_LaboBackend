@@ -40,10 +40,12 @@ public class JoueurMapper
             Id = Convert.ToInt32(reader["JoueurBlancIdAlias"]),
             Pseudo = reader["JoueurBlancPseudo"].ToString() ?? "",
             Email = reader["JoueurBlancEmail"].ToString() ?? "",
-            Elo = Convert.ToInt32(reader["JoueurBlancElo"])
+            Elo = Convert.ToInt32(reader["JoueurBlancElo"]),
+            Genre = reader["JoueurBlancGenre"].ToString() ?? "",
+            DateNaissance = Convert.ToDateTime(reader["JoueurBlancDateNaissance"]),
         };
     }
-    re
+
     public static Joueur ToJoueurNoir(SqlDataReader reader)
     {
         return new Joueur
@@ -51,7 +53,9 @@ public class JoueurMapper
             Id = Convert.ToInt32(reader["JoueurNoirIdAlias"]),
             Pseudo = reader["JoueurNoirPseudo"].ToString() ?? "",
             Email = reader["JoueurNoirEmail"].ToString() ?? "",
-            Elo = Convert.ToInt32(reader["JoueurNoirElo"])
+            Elo = Convert.ToInt32(reader["JoueurNoirElo"]),
+            Genre = reader["JoueurNoirGenre"].ToString() ?? "",
+            DateNaissance = Convert.ToDateTime(reader["JoueurNoirDateNaissance"]),
         };
     }
 }
