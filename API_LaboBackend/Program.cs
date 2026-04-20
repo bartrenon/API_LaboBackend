@@ -25,6 +25,8 @@ builder.Services.AddScoped<IInscriptionService, InscriptionService>();
 builder.Services.AddScoped<ICategorieRepository, CategorieRepository>();
 builder.Services.AddScoped<ICategorieService, CategorieService>();
 
+builder.Services.AddScoped<IRencontreRepository, RencontreRepository>();
+builder.Services.AddScoped<IRencontreService, RencontreService>();
 
 var app = builder.Build();
 
