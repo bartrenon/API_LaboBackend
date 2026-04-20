@@ -58,9 +58,8 @@ public class CategorieRepository : ICategorieRepository
         while (reader.Read())
         {
             int categorieId = Convert.ToInt32(reader["CategorieId"]);
-
         
-            var categorie = categories.FirstOrDefault(c => c.Id == categorieId);
+            Categorie? categorie = categories.FirstOrDefault(c => c.Id == categorieId);
 
             if (categorie == null)
             {
@@ -71,7 +70,7 @@ public class CategorieRepository : ICategorieRepository
             }
 
         
-            var tournoi = TournoiMapper.ToTournoiFromJoin(reader);
+            Tournoi? tournoi = TournoiMapper.ToTournoiFromJoin(reader);
 
             if (tournoi != null)
             {
@@ -114,15 +113,20 @@ public class CategorieRepository : ICategorieRepository
         {
             categorie = CategorieMapper.ToCategorieFromJoin(reader);
 
-            var tournoi = TournoiMapper.ToTournoiFromJoin(reader);
-            if (tournoi != null)
+            Tournoi? tournoi = TournoiMapper.ToTournoiFromJoin(reader);
+
+            if (tournoi != null) 
+            {
                 tournois.Add(tournoi);
+            }  
 
             while (reader.Read())
             {
                 tournoi = TournoiMapper.ToTournoiFromJoin(reader);
-                if (tournoi != null)
+                if (tournoi != null) 
+                {
                     tournois.Add(tournoi);
+                } 
             }
 
             categorie.Tournois = tournois;

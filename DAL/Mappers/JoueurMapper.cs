@@ -15,7 +15,8 @@ public class JoueurMapper
             MotDePasseHash = reader["MotDePasseHash"].ToString() ?? "",
             DateNaissance = Convert.ToDateTime(reader["DateNaissance"]),
             Genre = reader["Genre"].ToString() ?? "",
-            Elo = Convert.ToInt32(reader["Elo"])
+            Elo = Convert.ToInt32(reader["Elo"]),
+            Inscriptions = new List<Inscription>()
         };
     }
 
@@ -29,7 +30,8 @@ public class JoueurMapper
             MotDePasseHash = reader["MotDePasseHash"].ToString() ?? "",
             DateNaissance = Convert.ToDateTime(reader["DateNaissance"]),
             Genre = reader["Genre"].ToString() ?? "",
-            Elo = Convert.ToInt32(reader["Elo"])
+            Elo = Convert.ToInt32(reader["Elo"]),
+            Inscriptions = new List<Inscription>()
         };
     }
 

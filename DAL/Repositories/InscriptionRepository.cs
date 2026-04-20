@@ -57,7 +57,7 @@ public class InscriptionRepository : IInscriptionRepository
 
         while (reader.Read())
         {
-            Inscription inscription = InscriptionMapper.ToInscriptionFromJoin(reader);
+            Inscription inscription = InscriptionMapper.ToInscriptionFromJoinIsNotNull(reader);
 
             inscription.Joueur = JoueurMapper.ToJoueurFromJoin(reader);
 
@@ -97,11 +97,11 @@ public class InscriptionRepository : IInscriptionRepository
 
         if (reader.Read())
         {
-            inscription = InscriptionMapper.ToInscriptionFromJoin(reader);
+            inscription = InscriptionMapper.ToInscriptionFromJoinIsNotNull(reader);
 
             inscription.Joueur = JoueurMapper.ToJoueurFromJoin(reader);
 
-            inscription.Tournoi = TournoiMapper.ToTournoiFromJoin(reader);
+            inscription.Tournoi = TournoiMapper.ToTournoiFromJoinNotNull(reader);
         }
 
         return inscription;

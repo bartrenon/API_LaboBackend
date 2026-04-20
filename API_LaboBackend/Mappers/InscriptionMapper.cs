@@ -37,4 +37,26 @@ public class InscriptionMapper
             Joueur = JoueurMapper.ToJoueurShortInfo(i.Joueur)
         };
     }
+
+    public static InscriptionShortInfoNotOtherObject ToInscriptionShortInfoNotOtherObject(Inscription i)
+    {
+        return new InscriptionShortInfoNotOtherObject
+        {
+            JoueurId = i.JoueurId,
+            TournoiId = i.TournoiId,
+            DateInscription = i.DateInscription
+        };
+    }
+
+
+    public static InscriptionAllInfoNotOtherObject ToInscriptionAllInfoNotOtherObject(Inscription i)
+    {
+        return new InscriptionAllInfoNotOtherObject
+        {
+            Id = i.Id,
+            JoueurId = i.JoueurId,
+            TournoiId = i.TournoiId,
+            DateInscription = i.DateInscription,
+        };
+    }
 }

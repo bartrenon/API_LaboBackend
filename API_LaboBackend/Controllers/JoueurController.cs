@@ -1,4 +1,5 @@
-﻿using API_LaboBackend.DTO.Joueur;
+﻿using API_LaboBackend.DTO.Inscription;
+using API_LaboBackend.DTO.Joueur;
 using API_LaboBackend.Mappers;
 using BLL.Interfaces;
 using Domain.Entities;
@@ -32,6 +33,7 @@ public class JoueurController : ControllerBase
         return Ok(results);
     }
 
+
     [HttpGet("{id}")]
     public async Task<ActionResult<JoueurAllInfo>> GetById(int id)
     {
@@ -56,5 +58,6 @@ public class JoueurController : ControllerBase
 
         return CreatedAtAction(nameof(GetById), new { id = joueur.Id }, joueur);
     }
+
 
 }

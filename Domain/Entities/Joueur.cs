@@ -10,5 +10,5 @@ public class Joueur
     public string Genre { get; set; } = null!; 
     public int Elo { get; set; } = 1200;
 
-    public IEnumerable<Inscription> Inscriptions { get; set; } = new List<Inscription>();
+    public List<Inscription> Inscriptions { get; set; } = new List<Inscription>();
 }

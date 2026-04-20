@@ -1,4 +1,5 @@
-﻿using API_LaboBackend.DTO.Joueur;
+﻿using API_LaboBackend.DTO.Inscription;
+using API_LaboBackend.DTO.Joueur;
 using Domain.Entities;
 
 namespace API_LaboBackend.Mappers;
@@ -12,7 +13,10 @@ public class JoueurMapper
             Pseudo = j.Pseudo,
             DateNaissance = j.DateNaissance,
             Genre = j.Genre,
-            Elo = j.Elo
+            Elo = j.Elo,
+            Inscriptions = j.Inscriptions != null
+            ? j.Inscriptions.Select(i => InscriptionMapper.ToInscriptionShortInfoNotOtherObject(i)).ToList() : new List<InscriptionShortInfoNotOtherObject>()
+
         };
     }
 
@@ -39,7 +43,9 @@ public class JoueurMapper
             MotDePasseHash = j.MotDePasseHash,
             DateNaissance = j.DateNaissance,
             Genre = j.Genre,
-            Elo = j.Elo
+            Elo = j.Elo,
+            Inscriptions = j.Inscriptions != null
+            ? j.Inscriptions.Select(i => InscriptionMapper.ToInscriptionShortInfoNotOtherObject(i)).ToList() : new List<InscriptionShortInfoNotOtherObject>()
         };
     }
 }

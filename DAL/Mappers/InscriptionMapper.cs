@@ -16,8 +16,23 @@ public class InscriptionMapper
         };
     }
 
-    public static Inscription ToInscriptionFromJoin(SqlDataReader reader)
+    public static Inscription? ToInscriptionFromJoin(SqlDataReader reader)
     {
+        if (reader["InscriptionId"] == DBNull.Value)
+            return null;
+
+        return new Inscription
+        {
+            Id = Convert.ToInt32(reader["InscriptionId"]),
+            JoueurId = Convert.ToInt32(reader["JoueurId"]),
+            TournoiId = Convert.ToInt32(reader["TournoiId"]),
+            DateInscription = Convert.ToDateTime(reader["DateInscription"])
+        };
+    }
+
+    public static Inscription ToInscriptionFromJoinIsNotNull(SqlDataReader reader)
+    {
+       
         return new Inscription
         {
             Id = Convert.ToInt32(reader["InscriptionId"]),

@@ -38,7 +38,15 @@ public class JoueurRepository : IJoueurRepository
         List<Joueur> joueurs = new List<Joueur>();
 
         using SqlConnection connection = new SqlConnection(_connectionString);
-        string query = "SELECT * FROM Joueur ";
+        string query = @"SELECT j.Id AS JoueurIdAlias,
+                                j.Pseudo,j.Email,j.MotDePasseHash,j.DateNaissance,
+                                j.Genre,j.elo,
+                                
+                                i.Id AS InscriptionId,
+                                i.JoueurId,i.TournoiId,i.DateInscription
+
+                                FROM Joueur j
+                                LEFT JOIN Inscription i ON i.JoueurId = j.Id;";
 
         using SqlCommand command = new SqlCommand(query, connection);
 
@@ -48,9 +56,23 @@ public class JoueurRepository : IJoueurRepository
 
         while (reader.Read())
         {
-            Joueur joueur = JoueurMapper.ToJoueur(reader);
+            int JoueurId = Convert.ToInt32(reader["JoueurIdAlias"]);
 
-            joueurs.Add(joueur);
+            Joueur? joueur = joueurs.FirstOrDefault(j => j.Id == JoueurId);
+
+            if(joueur == null) 
+            {
+                joueur = JoueurMapper.ToJoueurFromJoin(reader);
+                joueur.Inscriptions = new List<Inscription>();
+                joueurs.Add(joueur);
+            }
+
+            Inscription? inscription = InscriptionMapper.ToInscriptionFromJoin(reader);
+
+            if(inscription != null)
+            {
+                joueur.Inscriptions.Add(inscription);
+            }
         }
 
         return joueurs;
@@ -59,9 +81,19 @@ public class JoueurRepository : IJoueurRepository
     public async Task<Joueur?> GetByIdAsync(int id)
     {
         Joueur? joueur = null;
+        List<Inscription> inscriptions = new List<Inscription>();
 
         using SqlConnection connection = new SqlConnection(_connectionString);
-        string query = "SELECT * FROM Joueur WHERE Id = @Id";
+        string query = @"SELECT j.Id AS JoueurIdAlias,
+                                j.Pseudo,j.Email,j.MotDePasseHash,j.DateNaissance,
+                                j.Genre,j.elo,
+                                
+                                i.Id AS InscriptionId,
+                                i.JoueurId,i.TournoiId,i.DateInscription
+
+                                FROM Joueur j
+                                LEFT JOIN Inscription i ON i.JoueurId = j.Id
+                                WHERE j.Id = @Id;";
 
         using SqlCommand command = new SqlCommand(query, connection);
         command.Parameters.AddWithValue("@Id", id);
@@ -72,7 +104,28 @@ public class JoueurRepository : IJoueurRepository
 
         if (reader.Read())
         {
-            joueur = JoueurMapper.ToJoueur(reader);
+            joueur = JoueurMapper.ToJoueurFromJoin(reader);
+
+            Inscription? inscription = InscriptionMapper.ToInscriptionFromJoin(reader); 
+
+            if(inscription != null) 
+            {
+                inscriptions.Add(inscription);
+            }
+
+            while (reader.Read())
+            {
+                inscription = InscriptionMapper.ToInscriptionFromJoin(reader);
+                if(inscription != null) 
+                {
+                    inscriptions.Add(inscription);
+                }
+            }
+        }
+
+        if (joueur != null) 
+        {
+            joueur.Inscriptions = inscriptions;
         }
 
         return joueur;
