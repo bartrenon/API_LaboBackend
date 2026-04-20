@@ -61,7 +61,7 @@ public class InscriptionRepository : IInscriptionRepository
 
             inscription.Joueur = JoueurMapper.ToJoueurFromJoin(reader);
 
-            inscription.Tournoi = TournoiMapper.ToTournoiFromJoin(reader);
+            inscription.Tournoi = TournoiMapper.ToTournoiFromJoinNotNull(reader);
 
             inscriptions.Add(inscription);
         }

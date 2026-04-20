@@ -33,4 +33,25 @@ public class JoueurMapper
         };
     }
 
+    public static Joueur ToJoueurBlanc(SqlDataReader reader)
+    {
+        return new Joueur
+        {
+            Id = Convert.ToInt32(reader["JoueurBlancIdAlias"]),
+            Pseudo = reader["JoueurBlancPseudo"].ToString() ?? "",
+            Email = reader["JoueurBlancEmail"].ToString() ?? "",
+            Elo = Convert.ToInt32(reader["JoueurBlancElo"])
+        };
+    }
+    re
+    public static Joueur ToJoueurNoir(SqlDataReader reader)
+    {
+        return new Joueur
+        {
+            Id = Convert.ToInt32(reader["JoueurNoirIdAlias"]),
+            Pseudo = reader["JoueurNoirPseudo"].ToString() ?? "",
+            Email = reader["JoueurNoirEmail"].ToString() ?? "",
+            Elo = Convert.ToInt32(reader["JoueurNoirElo"])
+        };
+    }
 }
