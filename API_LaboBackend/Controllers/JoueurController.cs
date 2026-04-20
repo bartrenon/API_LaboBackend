@@ -1,5 +1,4 @@
-﻿using API_LaboBackend.DTO.Inscription;
-using API_LaboBackend.DTO.Joueur;
+﻿using API_LaboBackend.DTO.Joueur;
 using API_LaboBackend.Mappers;
 using BLL.Interfaces;
 using Domain.Entities;
@@ -19,15 +18,15 @@ public class JoueurController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<JoueurShortInfo>>> GetAll()
+    public async Task<ActionResult<List<JoueurAll>>> GetAll()
     {
         List<Joueur> joueurs = await _joueurService.GetAllAsync();
 
-        List<JoueurShortInfo> results = new List<JoueurShortInfo>();
+        List<JoueurAll> results = new List<JoueurAll>();
 
         foreach (Joueur joueur in joueurs)
         {
-            results.Add(JoueurMapper.ToJoueurShortInfo(joueur));
+            results.Add(JoueurMapper.ToJoueurAll(joueur));
         }
 
         return Ok(results);
@@ -35,7 +34,7 @@ public class JoueurController : ControllerBase
 
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<JoueurAllInfo>> GetById(int id)
+    public async Task<ActionResult<JoueurAll>> GetById(int id)
     {
         Joueur? joueur = await _joueurService.GetByIdAsync(id);
 
@@ -43,7 +42,7 @@ public class JoueurController : ControllerBase
             return NotFound();
         }
 
-        return Ok(JoueurMapper.ToJoueurAllInfo(joueur));
+        return Ok(JoueurMapper.ToJoueurAll(joueur));
 
     }
 

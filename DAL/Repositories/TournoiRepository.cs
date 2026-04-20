@@ -1,5 +1,6 @@
 ﻿using DAL.Interfaces;
 using DAL.Mapper;
+using DAL.Mappers;
 using Domain.Entities;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -90,22 +91,68 @@ public class TournoiRepository : ITournoiRepository
         Tournoi? tournoi = null;
 
         using SqlConnection connection = new SqlConnection(_connectionString);
-        string query = "SELECT * FROM Tournoi WHERE Id = @Id";
-
-        using SqlCommand command = new SqlCommand(query, connection);
-        command.Parameters.AddWithValue("@Id", id);
-
         await connection.OpenAsync();
 
-        using SqlDataReader reader = await command.ExecuteReaderAsync();
-
-        if (reader.Read())
+        string queryTournoi = "SELECT * FROM Tournoi WHERE Id = @Id";
+        using (SqlCommand cmd = new SqlCommand(queryTournoi, connection))
         {
-            tournoi = TournoiMapper.ToTournoi(reader);
+            cmd.Parameters.AddWithValue("@Id", id);
+
+            using SqlDataReader reader = await cmd.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                tournoi = TournoiMapper.ToTournoi(reader);
+            }
+        }
+
+        if (tournoi == null)
+            return null;
+
+        string queryInscriptions = "SELECT * FROM Inscription WHERE TournoiId = @Id";
+        using (SqlCommand cmd = new SqlCommand(queryInscriptions, connection))
+        {
+            cmd.Parameters.AddWithValue("@Id", id);
+
+            using SqlDataReader reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                tournoi.Inscriptions.Add(InscriptionMapper.ToInscription(reader));
+            }
+        }
+
+        string queryCategories = @"
+                                  SELECT c.*
+                                  FROM Categorie c
+                                  INNER JOIN TournoiCategorie tc ON tc.CategorieId = c.Id
+                                  WHERE tc.TournoiId = @Id;";
+
+        using (SqlCommand cmd = new SqlCommand(queryCategories, connection))
+        {
+            cmd.Parameters.AddWithValue("@Id", id);
+
+            using SqlDataReader reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                tournoi.Categories.Add(CategorieMapper.ToCategorie(reader));
+            }
+        }
+
+
+        string queryRencontres = "SELECT * FROM Rencontre WHERE TournoiId = @Id";
+        using (SqlCommand cmd = new SqlCommand(queryRencontres, connection))
+        {
+            cmd.Parameters.AddWithValue("@Id", id);
+
+            using SqlDataReader reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                tournoi.Rencontres.Add(RencontreMapper.ToRencontre(reader));
+            }
         }
 
         return tournoi;
     }
+
 
     public async Task<List<Tournoi>> GetLastNotClosedAsync()
     {

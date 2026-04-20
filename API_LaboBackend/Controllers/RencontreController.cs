@@ -29,13 +29,13 @@ public class RencontreController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<RencontreAllInfo>> GetById(int id)
+    public async Task<ActionResult<RencontreAll>> GetById(int id)
     {
         Rencontre? rencontre = await _rencontreService.GetByIdAsync(id);
 
         if (rencontre != null)
         {
-            RencontreAllInfo result = RencontreMapper.ToRencontreAllInfo(rencontre);
+            RencontreAll result = RencontreMapper.ToRencontreAll(rencontre);
 
             return Ok(result);
         }
@@ -44,11 +44,11 @@ public class RencontreController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<RencontreShortInfo>>> GetAll()
+    public async Task<ActionResult<List<RencontreAll>>> GetAll()
     {
         List<Rencontre> rencontres = await _rencontreService.GetAllAsync();
 
-        List<RencontreShortInfo> results = rencontres.Select(r => RencontreMapper.ToRencontreShortInfo(r)).ToList();
+        List<RencontreAll> results = rencontres.Select(r => RencontreMapper.ToRencontreAll(r)).ToList();
 
         return Ok(results);
     }

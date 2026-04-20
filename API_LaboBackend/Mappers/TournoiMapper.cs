@@ -5,15 +5,23 @@ namespace API_LaboBackend.Mappers;
 
 public class TournoiMapper
 {
-    public static TournoiShortInfo ToTournoiShortInfo(Tournoi t)
+    public static TournoiShort ToTournoiShort(Tournoi t)
     {
-        return new TournoiShortInfo
+        return new TournoiShort
         {
+            Id = t.Id,
             Nom = t.Nom,
             Lieu = t.Lieu,
+            MinJoueurs = t.MinJoueurs,
+            MaxJoueurs = t.MaxJoueurs,
+            EloMin = t.EloMin,
+            EloMax = t.EloMax,
+            WomenOnly = t.WomenOnly,
             DateFinInscriptions = t.DateFinInscriptions,
+            RondeCourante = t.RondeCourante,
             Statut = t.Statut,
-            DateMiseAJour = t.DateMiseAJour
+            DateCreation = t.DateCreation,
+            DateMiseAJour = t.DateMiseAJour,
         };
     }
 
@@ -32,9 +40,9 @@ public class TournoiMapper
         };
     }
 
-    public static TournoiAllInfo ToTournoiAllInfo(Tournoi t)
+    public static TournoiAll ToTournoiAll(Tournoi t)
     {
-        return new TournoiAllInfo
+        return new TournoiAll
         {
             Id = t.Id,
             Nom = t.Nom,
@@ -48,7 +56,10 @@ public class TournoiMapper
             RondeCourante = t.RondeCourante,
             Statut = t.Statut,
             DateCreation = t.DateCreation,
-            DateMiseAJour = t.DateMiseAJour
+            DateMiseAJour = t.DateMiseAJour,
+            Inscriptions = t.Inscriptions.Select(i => InscriptionMapper.ToInscriptionShort(i)).ToList(),
+            Categories = t.Categories.Select(c => CategorieMapper.ToCategorieShort(c)).ToList(),
+            Rencontres = t.Rencontres.Select(r => RencontreMapper.ToRencontreShort(r)).ToList()
         };
     }
 

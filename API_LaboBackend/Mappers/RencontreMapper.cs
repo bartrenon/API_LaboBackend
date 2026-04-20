@@ -15,25 +15,23 @@ public class RencontreMapper
         };
     }
 
-    public static RencontreShortInfo ToRencontreShortInfo(Rencontre r)
+    public static RencontreShort ToRencontreShort(Rencontre r)
     {
-        return new RencontreShortInfo
+        return new RencontreShort
         {
+            Id = r.Id,
             Ronde = r.Ronde,
             Resultat = r.Resultat,
             TournoiId = r.TournoiId,
             JoueurBlancId = r.JoueurBlancId,
-            JoueurNoirId = r.JoueurNoirId,
-
-            Tournoi = TournoiMapper.ToTournoiShortInfo(r.Tournoi),
-            JoueurBlanc = JoueurMapper.ToJoueurShortInfo(r.JoueurBlanc),
-            JoueurNoir = JoueurMapper.ToJoueurShortInfo(r.JoueurNoir)
+            JoueurNoirId = r.JoueurNoirId
         };
     }
 
-    public static RencontreAllInfo ToRencontreAllInfo(Rencontre r)
+
+    public static RencontreAll ToRencontreAll(Rencontre r)
     {
-        return new RencontreAllInfo
+        return new RencontreAll
         {
             Id = r.Id,
             Ronde = r.Ronde,
@@ -42,9 +40,9 @@ public class RencontreMapper
             JoueurBlancId = r.JoueurBlancId,
             JoueurNoirId = r.JoueurNoirId,
 
-            Tournoi = TournoiMapper.ToTournoiShortInfo(r.Tournoi),
-            JoueurBlanc = JoueurMapper.ToJoueurShortInfo(r.JoueurBlanc),
-            JoueurNoir = JoueurMapper.ToJoueurShortInfo(r.JoueurNoir)
+            Tournoi = TournoiMapper.ToTournoiShort(r.Tournoi),
+            JoueurBlanc = JoueurMapper.ToJoueurShort(r.JoueurBlanc),
+            JoueurNoir = JoueurMapper.ToJoueurShort(r.JoueurNoir)
         };
     }
 

@@ -30,13 +30,13 @@ public class CategorieController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<CategorieAllInfo>> GetById(int id)
+    public async Task<ActionResult<CategorieAll>> GetById(int id)
     {
         Categorie? categorie = await _categorieService.GetByIdAsync(id);
 
         if (categorie != null)
         {
-            CategorieAllInfo result = CategorieMapper.ToCategorieAllInfo(categorie);
+            CategorieAll result = CategorieMapper.ToCategorieAll(categorie);
 
             return Ok(result);
         }
@@ -45,11 +45,11 @@ public class CategorieController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<CategorieShortInfo>>> GetAll()
+    public async Task<ActionResult<List<CategorieAll>>> GetAll()
     {
         List<Categorie> categories = await _categorieService.GetAllAsync();
 
-        List<CategorieShortInfo> results = categories.Select(c => CategorieMapper.ToCategorieShortInfo(c)).ToList();
+        List<CategorieAll> results = categories.Select(c => CategorieMapper.ToCategorieAll(c)).ToList();
 
         return Ok(results);
     }

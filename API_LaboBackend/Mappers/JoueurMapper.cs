@@ -6,20 +6,7 @@ namespace API_LaboBackend.Mappers;
 
 public class JoueurMapper
 {
-    public static JoueurShortInfo ToJoueurShortInfo(Joueur j)
-    {
-        return new JoueurShortInfo
-        {
-            Pseudo = j.Pseudo,
-            DateNaissance = j.DateNaissance,
-            Genre = j.Genre,
-            Elo = j.Elo,
-            Inscriptions = j.Inscriptions != null
-            ? j.Inscriptions.Select(i => InscriptionMapper.ToInscriptionShortInfoNotOtherObject(i)).ToList() : new List<InscriptionShortInfoNotOtherObject>()
-
-        };
-    }
-
+ 
     public static Joueur ToJoueur(JoueurCreate j)
     {
         return new Joueur
@@ -33,19 +20,32 @@ public class JoueurMapper
         };
     }
 
-    public static JoueurAllInfo ToJoueurAllInfo(Joueur j)
+    public static JoueurShort ToJoueurShort(Joueur j)
     {
-        return new JoueurAllInfo
+        return new JoueurShort
         {
             Id = j.Id,
             Pseudo = j.Pseudo,
             Email = j.Email,
-            MotDePasseHash = j.MotDePasseHash,
+            DateNaissance = j.DateNaissance,
+            Genre = j.Genre,
+            Elo = j.Elo,
+        };
+    }
+
+
+    public static JoueurAll ToJoueurAll(Joueur j)
+    {
+        return new JoueurAll
+        {
+            Id = j.Id,
+            Pseudo = j.Pseudo,
+            Email = j.Email,
             DateNaissance = j.DateNaissance,
             Genre = j.Genre,
             Elo = j.Elo,
             Inscriptions = j.Inscriptions != null
-            ? j.Inscriptions.Select(i => InscriptionMapper.ToInscriptionShortInfoNotOtherObject(i)).ToList() : new List<InscriptionShortInfoNotOtherObject>()
+            ? j.Inscriptions.Select(i => InscriptionMapper.ToInscriptionShort(i)).ToList() : new List<InscriptionShort>()
         };
     }
 }

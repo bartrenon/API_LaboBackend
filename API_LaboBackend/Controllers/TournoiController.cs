@@ -18,37 +18,37 @@ public class TournoiController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<TournoiShortInfo>>> GetAll()
+    public async Task<ActionResult<List<TournoiAll>>> GetAll()
     {
         List<Tournoi> tournois = await _tournoiService.GetAllAsync();
 
-        List<TournoiShortInfo> result = new List<TournoiShortInfo>();
+        List<TournoiAll> result = new List<TournoiAll>();
 
         foreach (Tournoi tournoi in tournois)
         {
-            result.Add(TournoiMapper.ToTournoiShortInfo(tournoi));
+            result.Add(TournoiMapper.ToTournoiAll(tournoi));
         }
 
         return Ok(result);
     }
 
     [HttpGet("recents")]
-    public async Task<ActionResult<List<TournoiShortInfo>>> GetLastNotClosed()
+    public async Task<ActionResult<List<TournoiAll>>> GetLastNotClosed()
     {
         List<Tournoi> tournois = await _tournoiService.GetLastNotClosedAsync();
 
-        List<TournoiShortInfo> result = new List<TournoiShortInfo>();
+        List<TournoiAll> result = new List<TournoiAll>();
 
         foreach (Tournoi tournoi in tournois)
         {
-            result.Add(TournoiMapper.ToTournoiShortInfo(tournoi));
+            result.Add(TournoiMapper.ToTournoiAll(tournoi));
         }
 
         return Ok(result);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<TournoiAllInfo>> GetById(int id)
+    public async Task<ActionResult<TournoiAll>> GetById(int id)
     {
         Tournoi? tournoi = await _tournoiService.GetByIdAsync(id);
 
@@ -57,7 +57,7 @@ public class TournoiController : ControllerBase
             return NotFound();
         }
 
-        return Ok(TournoiMapper.ToTournoiAllInfo(tournoi));
+        return Ok(TournoiMapper.ToTournoiAll(tournoi));
     }
 
 
@@ -68,7 +68,7 @@ public class TournoiController : ControllerBase
 
         tournoi.Id = await _tournoiService.CreateAsync(tournoi);
 
-        return CreatedAtAction(nameof(GetById), new { id = tournoi.Id }, TournoiMapper.ToTournoiAllInfo(tournoi));
+        return CreatedAtAction(nameof(GetById), new { id = tournoi.Id }, TournoiMapper.ToTournoiAll(tournoi));
     }
 
     [HttpDelete("{id}")]

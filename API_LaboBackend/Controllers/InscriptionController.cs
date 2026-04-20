@@ -29,13 +29,13 @@ public class InscriptionController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<InscriptionAllInfo>> GetById(int id) 
+    public async Task<ActionResult<InscriptionAll>> GetById(int id) 
     {
         Inscription? inscription = await _inscriptionService.GetByIdAsync(id);
 
         if( inscription != null) 
         {
-            InscriptionAllInfo result = InscriptionMapper.ToInscriptionAllInfo(inscription);
+            InscriptionAll result = InscriptionMapper.ToInscriptionAll(inscription);
 
             return Ok(result);
         }
@@ -44,11 +44,11 @@ public class InscriptionController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<InscriptionShortInfo>>> GetAll() 
+    public async Task<ActionResult<List<InscriptionAll>>> GetAll() 
     {
         List<Inscription> inscriptions = await _inscriptionService.GetAllAsync();
 
-        List<InscriptionShortInfo> results = inscriptions.Select(i => InscriptionMapper.ToInscriptionShortInfo(i)).ToList();
+        List<InscriptionAll> results = inscriptions.Select(i => InscriptionMapper.ToInscriptionAll(i)).ToList();
 
         return Ok(results);
     }

@@ -1,34 +1,33 @@
 ﻿using API_LaboBackend.DTO.Categorie;
 using API_LaboBackend.DTO.Tournoi;
 using Domain.Entities;
-using Microsoft.Data.SqlClient;
 
 namespace API_LaboBackend.Mappers;
 
 public class CategorieMapper
 {
-    public static CategorieAllInfo ToCategorieAllInfo(Categorie c)
+    public static CategorieAll ToCategorieAll(Categorie c)
     {
-        return new CategorieAllInfo
+        return new CategorieAll
         {
             Id = c.Id,
             Nom = c.Nom,
             AgeMin = c.AgeMin,
             AgeMax = c.AgeMax,
             Tournois = c.Tournois != null
-            ? c.Tournois.Select(t => TournoiMapper.ToTournoiShortInfo(t)).ToList() : new List<TournoiShortInfo>()
+            ? c.Tournois.Select(t => TournoiMapper.ToTournoiShort(t)).ToList() : new List<TournoiShort>()
         };
     }
 
-    public static CategorieShortInfo ToCategorieShortInfo(Categorie c)
+
+    public static CategorieShort ToCategorieShort(Categorie c)
     {
-        return new CategorieShortInfo
+        return new CategorieShort
         {
+            Id = c.Id,      
             Nom = c.Nom,
             AgeMin = c.AgeMin,
             AgeMax = c.AgeMax,
-            Tournois = c.Tournois != null
-            ? c.Tournois.Select(t => TournoiMapper.ToTournoiShortInfo(t)).ToList() : new List<TournoiShortInfo>()
         };
     }
 
