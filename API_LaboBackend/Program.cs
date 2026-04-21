@@ -28,6 +28,8 @@ builder.Services.AddScoped<ICategorieService, CategorieService>();
 builder.Services.AddScoped<IRencontreRepository, RencontreRepository>();
 builder.Services.AddScoped<IRencontreService, RencontreService>();
 
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

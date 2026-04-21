@@ -1,9 +1,10 @@
-﻿using MailKit.Net.Smtp;
+﻿using BLL.Interfaces;
+using MailKit.Net.Smtp;
 using MimeKit;
 
 namespace BLL.Services;
 
-public class EmailService
+public class EmailService : IEmailService
 {
     private readonly string smtpServer = "smtp.gmail.com";
     private readonly int smtpPort = 587;
