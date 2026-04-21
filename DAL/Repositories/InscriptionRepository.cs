@@ -106,4 +106,34 @@ public class InscriptionRepository : IInscriptionRepository
 
         return inscription;
     }
+
+    public async Task<bool> ExistsAsync(int joueurId, int tournoiId)
+    {
+        using SqlConnection connection = new SqlConnection(_connectionString);
+        string query = "SELECT COUNT(*) FROM Inscription WHERE JoueurId = @JoueurId AND TournoiId = @TournoiId";
+
+        using SqlCommand command = new SqlCommand(query, connection);
+        command.Parameters.AddWithValue("@JoueurId", joueurId);
+        command.Parameters.AddWithValue("@TournoiId", tournoiId);
+
+        await connection.OpenAsync();
+        int count = Convert.ToInt32(await command.ExecuteScalarAsync());
+
+        return count > 0;
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        using SqlConnection connection = new SqlConnection(_connectionString);
+        string query = @"DELETE FROM Inscription WHERE Id = @Id AND";
+
+        using SqlCommand command = new SqlCommand(query, connection);
+        command.Parameters.AddWithValue("@Id", id);
+
+        await connection.OpenAsync();
+        int rowsAffected = await command.ExecuteNonQueryAsync();
+
+        return rowsAffected > 0;
+    }
+
 }

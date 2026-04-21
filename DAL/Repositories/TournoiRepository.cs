@@ -159,7 +159,11 @@ public class TournoiRepository : ITournoiRepository
         List<Tournoi> tournois = new List<Tournoi>();
 
         using SqlConnection connection = new SqlConnection(_connectionString);
-        string query = "SELECT TOP 10 * FROM Tournoi WHERE Statut = 'En préparation' ORDER BY DateMiseAJour DESC";
+        string query = @"
+        SELECT TOP 10 *
+        FROM Tournoi
+        WHERE Statut <> 'Clôturé'
+        ORDER BY DateMiseAJour DESC";
 
         using SqlCommand command = new SqlCommand(query, connection);
 
@@ -170,10 +174,87 @@ public class TournoiRepository : ITournoiRepository
         while (reader.Read())
         {
             Tournoi tournoi = TournoiMapper.ToTournoi(reader);
-
             tournois.Add(tournoi);
         }
 
         return tournois;
+    }
+
+    public async Task<Tournoi?> GetDetails(int id)
+    {
+        Tournoi? tournoi = null;
+
+        using SqlConnection connection = new SqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        string queryTournoi = "SELECT * FROM Tournoi WHERE Id = @Id";
+        using (SqlCommand cmd = new SqlCommand(queryTournoi, connection))
+        {
+            cmd.Parameters.AddWithValue("@Id", id);
+
+            using SqlDataReader reader = await cmd.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                tournoi = TournoiMapper.ToTournoi(reader);
+            }
+        }
+
+        if (tournoi == null)
+            return null;
+
+        string queryJoueurs = @"SELECT j.*
+                                FROM Inscription i
+                                INNER JOIN Joueur j ON j.Id = i.JoueurId
+                                WHERE i.TournoiId = @Id";
+
+        using (SqlCommand cmd = new SqlCommand(queryJoueurs, connection))
+        {
+            cmd.Parameters.AddWithValue("@Id", id);
+
+            using SqlDataReader reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                tournoi.JoueursInscrits.Add(JoueurMapper.ToJoueur(reader));
+            }
+        }
+
+
+        string queryCategories = @"
+                                  SELECT c.*
+                                  FROM Categorie c
+                                  INNER JOIN TournoiCategorie tc ON tc.CategorieId = c.Id
+                                  WHERE tc.TournoiId = @Id;";
+
+        using (SqlCommand cmd = new SqlCommand(queryCategories, connection))
+        {
+            cmd.Parameters.AddWithValue("@Id", id);
+
+            using SqlDataReader reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                tournoi.Categories.Add(CategorieMapper.ToCategorie(reader));
+            }
+        }
+
+
+        string queryRencontres = @" SELECT *
+                                    FROM Rencontre
+                                    WHERE TournoiId = @Id
+                                    AND Ronde = @RondeCourante";
+
+        using (SqlCommand cmd = new SqlCommand(queryRencontres, connection))
+        {
+            cmd.Parameters.AddWithValue("@Id", id);
+            cmd.Parameters.AddWithValue("@RondeCourante", tournoi.RondeCourante);
+
+            using SqlDataReader reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                tournoi.Rencontres.Add(RencontreMapper.ToRencontre(reader));
+            }
+        }
+
+
+        return tournoi;
     }
 }

@@ -9,4 +9,8 @@ public interface IInscriptionRepository
     Task<Inscription?> GetByIdAsync(int id);
 
     Task<int> CreateAsync(Inscription inscription);
+
+    Task<bool> ExistsAsync(int joueurId, int tournoiId);
+
+    Task<bool> DeleteAsync(int id);
 }

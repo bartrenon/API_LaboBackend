@@ -63,4 +63,27 @@ public class TournoiMapper
         };
     }
 
+    public static TournoiDetails ToTournoiDetails(Tournoi t)
+    {
+        return new TournoiDetails
+        {
+            Id = t.Id,
+            Nom = t.Nom,
+            Lieu = t.Lieu,
+            MinJoueurs = t.MinJoueurs,
+            MaxJoueurs = t.MaxJoueurs,
+            EloMin = t.EloMin,
+            EloMax = t.EloMax,
+            WomenOnly = t.WomenOnly,
+            DateFinInscriptions = t.DateFinInscriptions,
+            RondeCourante = t.RondeCourante,
+            Statut = t.Statut,
+            DateCreation = t.DateCreation,
+            DateMiseAJour = t.DateMiseAJour,
+            Joueurs = t.JoueursInscrits.Select(j => JoueurMapper.ToJoueurShort(j)).ToList(),
+            Categories = t.Categories.Select(c => CategorieMapper.ToCategorieShort(c)).ToList(),
+            Rencontres = t.Rencontres.Select(r => RencontreMapper.ToRencontreShort(r)).ToList()
+        };
+    }
+
 }

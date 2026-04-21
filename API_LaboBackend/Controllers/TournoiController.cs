@@ -22,11 +22,11 @@ public class TournoiController : ControllerBase
     {
         List<Tournoi> tournois = await _tournoiService.GetAllAsync();
 
-        List<TournoiAll> result = new List<TournoiAll>();
+        List<TournoiShort> result = new List<TournoiShort>();
 
         foreach (Tournoi tournoi in tournois)
         {
-            result.Add(TournoiMapper.ToTournoiAll(tournoi));
+            result.Add(TournoiMapper.ToTournoiShort(tournoi));
         }
 
         return Ok(result);
@@ -58,6 +58,20 @@ public class TournoiController : ControllerBase
         }
 
         return Ok(TournoiMapper.ToTournoiAll(tournoi));
+    }
+
+
+    [HttpGet("Details/{id}")]
+    public async Task<ActionResult<TournoiDetails>> GetByDetails(int id)
+    {
+        Tournoi? tournoi = await _tournoiService.GetDetails(id);
+
+        if (tournoi == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(TournoiMapper.ToTournoiDetails(tournoi));
     }
 
 

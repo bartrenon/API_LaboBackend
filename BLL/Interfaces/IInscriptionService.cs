@@ -9,4 +9,6 @@ public interface IInscriptionService
     Task<Inscription?> GetByIdAsync(int id);
 
     Task<int> CreateAsync(Inscription inscription);
+
+    Task<bool> DeleteAsync(int id);
 }

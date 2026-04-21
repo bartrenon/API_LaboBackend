@@ -20,5 +20,6 @@ public class Tournoi
 
     public List<Categorie> Categories { get; set; } = new List<Categorie>();
     public List<Inscription> Inscriptions { get; set; } = new List<Inscription>();
+    public List<Joueur> JoueursInscrits { get; set; } = new List<Joueur>();
     public List<Rencontre> Rencontres { get; set; } = new List<Rencontre>();
 }

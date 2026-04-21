@@ -1,6 +1,7 @@
 ﻿using API_LaboBackend.DTO.Inscription;
 using API_LaboBackend.Mappers;
 using BLL.Interfaces;
+using BLL.Services;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -51,5 +52,13 @@ public class InscriptionController : ControllerBase
         List<InscriptionAll> results = inscriptions.Select(i => InscriptionMapper.ToInscriptionAll(i)).ToList();
 
         return Ok(results);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> Delete(int id)
+    {
+        await _inscriptionService.DeleteAsync(id);
+
+        return NoContent();
     }
 }
