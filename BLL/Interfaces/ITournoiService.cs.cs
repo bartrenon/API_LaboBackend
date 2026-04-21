@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using BLL.Dto;
+using Domain.Entities;
 
 namespace BLL.Interfaces;
 
@@ -23,5 +24,7 @@ public interface ITournoiService
     Task<bool> PasserRondeSuivanteAsync(int tournoiId);
 
     Task<bool> CloturerTournoiAsync(int tournoiId);
+
+    Task<List<Score>> GetScoresAsync(int tournoiId, int? ronde);
 
 }

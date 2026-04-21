@@ -1,4 +1,5 @@
-﻿using BLL.Interfaces;
+﻿using BLL.Dto;
+using BLL.Interfaces;
 using DAL.Interfaces;
 using Domain.Entities;
 
@@ -140,39 +141,45 @@ public class TournoiService : ITournoiService
 
     public async Task GenererRencontresRoundRobin(Tournoi tournoi)
     {
-        var joueurs = tournoi.JoueursInscrits;
+        List<Joueur> joueurs = tournoi.JoueursInscrits.ToList();
 
-        if (joueurs.Count < 2)
-            return;
-
-        int ronde = 1;
-
-        for (int i = 0; i < joueurs.Count; i++)
+        
+        bool hasBye = false;
+        if (joueurs.Count % 2 != 0)
         {
-            for (int j = i + 1; j < joueurs.Count; j++)
+            joueurs.Add(new Joueur { Id = -1 }); 
+            hasBye = true;
+        }
+
+        int n = joueurs.Count;
+        int totalRounds = n - 1;
+        int half = n / 2;
+
+        for (int ronde = 1; ronde <= totalRounds; ronde++)
+        {
+            for (int i = 0; i < half; i++)
             {
-                
-                await _rencontreRepository.CreateAsync(new Rencontre
-                {
-                    TournoiId = tournoi.Id,
-                    Ronde = ronde,
-                    JoueurBlancId = joueurs[i].Id,
-                    JoueurNoirId = joueurs[j].Id
-                });
+                var blanc = joueurs[i];
+                var noir = joueurs[n - 1 - i];
 
-                
-                await _rencontreRepository.CreateAsync(new Rencontre
+                if (blanc.Id != -1 && noir.Id != -1)
                 {
-                    TournoiId = tournoi.Id,
-                    Ronde = ronde + 1,
-                    JoueurBlancId = joueurs[j].Id,
-                    JoueurNoirId = joueurs[i].Id
-                });
-
-                ronde += 2;
+                    await _rencontreRepository.CreateAsync(new Rencontre
+                    {
+                        TournoiId = tournoi.Id,
+                        Ronde = ronde,
+                        JoueurBlancId = blanc.Id,
+                        JoueurNoirId = noir.Id
+                    });
+                }
             }
+
+            var pivot = joueurs[1];
+            joueurs.RemoveAt(1);
+            joueurs.Add(pivot);
         }
     }
+
 
     public async Task<bool> PasserRondeSuivanteAsync(int tournoiId)
     {
@@ -190,7 +197,7 @@ public class TournoiService : ITournoiService
             throw new Exception("Le tournoi n'est pas en cours");
         }
             
-        List<Rencontre> rencontres = await _rencontreRepository.GetByTournoiAndRondeAsync(tournoiId, tournoi.RondeCourante);
+        List<Rencontre> rencontres = await _tournoiRepository.GetByTournoiAndRondeAsync(tournoiId, tournoi.RondeCourante);
 
         if (rencontres.Count == 0) 
         {
@@ -219,31 +226,97 @@ public class TournoiService : ITournoiService
 
     public async Task<bool> CloturerTournoiAsync(int tournoiId)
     {
-        
-        var tournoi = await _tournoiRepository.GetDetails(tournoiId);
+        Tournoi? tournoi = await _tournoiRepository.GetDetails(tournoiId);
         
         if (tournoi == null) 
         {
             throw new Exception("Tournoi introuvable");
         }
-           
-        int totalRondes = (tournoi.JoueursInscrits.Count - 1) * 2;
+
+        int totalRondes = tournoi.JoueursInscrits.Count - 1;
 
        
-        if (tournoi.RondeCourante != totalRondes) 
+        if (tournoi.RondeCourante <= totalRondes) 
         {
             throw new Exception("Le tournoi n'est pas encore terminé");
         }
            
-        List<Rencontre> rencontres = await _rencontreRepository.GetByTournoiAndRondeAsync(tournoiId, tournoi.RondeCourante);
+        
+        List<Rencontre> rencontresDerniereRonde =  await _tournoiRepository.GetByTournoiAndRondeAsync(tournoiId, totalRondes);
 
-        if (rencontres.Any(r => r.Resultat == null)) 
+        if (rencontresDerniereRonde.Any(r => string.IsNullOrEmpty(r.Resultat))) 
         {
             throw new Exception("Toutes les rencontres doivent être terminées avant de clôturer");
-        }
-            
+        } 
+
         return await _tournoiRepository.CloturerAsync(tournoiId);
     }
 
+
+    public async Task<List<Score>> GetScoresAsync(int tournoiId, int? ronde)
+    {
+        var tournoi = await _tournoiRepository.GetDetails(tournoiId);
+        if (tournoi == null)
+            throw new Exception("Tournoi introuvable");
+
+        List<Rencontre> rencontres;
+
+        
+        rencontres = await _tournoiRepository.GetByTournoiAndRondeAsync(tournoiId, ronde);
+
+        
+        var scores = tournoi.JoueursInscrits
+            .Select(j => new Score
+            {
+                Nom = j.Pseudo,
+                MatchsJoues = 0,
+                Victoires = 0,
+                Defaites = 0,
+                Egalites = 0,
+                ScoreFinal = 0
+            })
+            .ToDictionary(s => s.Nom);
+
+        
+        foreach (var r in rencontres)
+        {
+            if (string.IsNullOrEmpty(r.Resultat))
+                continue;
+
+            var blanc = tournoi.JoueursInscrits.First(j => j.Id == r.JoueurBlancId).Pseudo;
+            var noir = tournoi.JoueursInscrits.First(j => j.Id == r.JoueurNoirId).Pseudo;
+
+            scores[blanc].MatchsJoues++;
+            scores[noir].MatchsJoues++;
+
+            switch (r.Resultat)
+            {
+                case "1-0":
+                    scores[blanc].Victoires++;
+                    scores[blanc].ScoreFinal += 1;
+                    scores[noir].Defaites++;
+                    break;
+
+                case "0-1":
+                    scores[noir].Victoires++;
+                    scores[noir].ScoreFinal += 1;
+                    scores[blanc].Defaites++;
+                    break;
+
+                case "0.5-0.5":
+                case "0,5-0,5": 
+                    scores[blanc].Egalites++;
+                    scores[noir].Egalites++;
+                    scores[blanc].ScoreFinal += 0.5;
+                    scores[noir].ScoreFinal += 0.5;
+                    break;
+            }
+        }
+
+        return scores.Values
+            .OrderByDescending(s => s.ScoreFinal)
+            .ThenByDescending(s => s.Victoires)
+            .ToList();
+    }
 
 }

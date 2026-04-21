@@ -11,7 +11,5 @@ public interface IRencontreRepository
     Task<int> CreateAsync(Rencontre rencontre);
 
     Task<bool> UpdateResultatAsync(int id, string resultat);
-
-    Task<List<Rencontre>> GetByTournoiAndRondeAsync(int tournoiId, int ronde);
 }
 

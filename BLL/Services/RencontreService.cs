@@ -39,7 +39,7 @@ public class RencontreService : IRencontreService
             throw new Exception("Rencontre introuvable");
         }
             
-        Tournoi? tournoi = await _tournoiRepository.GetByIdAsync(rencontre.TournoiId);
+        Tournoi? tournoi = await _tournoiRepository.GetDetails(rencontre.TournoiId);
 
         if (tournoi == null) 
         {

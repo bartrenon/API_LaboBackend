@@ -136,4 +136,14 @@ public class TournoiController : ControllerBase
         return Ok(new { message = "Tournoi clôturé avec succès." });
         
     }
+
+    [HttpGet("{id}/scores")]
+    public async Task<IActionResult> GetScores(int id, int? ronde)
+    {
+         
+        var scores = await _tournoiService.GetScoresAsync(id, ronde);
+            
+        return Ok(scores);
+       
+    }
 }

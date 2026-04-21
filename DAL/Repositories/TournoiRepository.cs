@@ -315,5 +315,40 @@ public class TournoiRepository : ITournoiRepository
         return await cmd.ExecuteNonQueryAsync() > 0;
     }
 
+    public async Task<List<Rencontre>> GetByTournoiAndRondeAsync(int tournoiId, int? ronde)
+    {
+        List<Rencontre> list = new();
+
+        using SqlConnection connection = new SqlConnection(_connectionString);
+        string query = @"
+        SELECT Id, JoueurBlancId, JoueurNoirId, Resultat
+        FROM Rencontre
+        WHERE TournoiId = @TournoiId";
+
+        if (ronde.HasValue)
+            query += " AND Ronde = @Ronde";
+
+        using SqlCommand cmd = new SqlCommand(query, connection);
+        cmd.Parameters.AddWithValue("@TournoiId", tournoiId);
+
+        if (ronde.HasValue)
+            cmd.Parameters.AddWithValue("@Ronde", ronde.Value);
+
+        await connection.OpenAsync();
+        using SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+        while (await reader.ReadAsync())
+        {
+            list.Add(new Rencontre
+            {
+                Id = reader.GetInt32(0),
+                JoueurBlancId = reader.GetInt32(1),
+                JoueurNoirId = reader.GetInt32(2),
+                Resultat = reader.IsDBNull(3) ? null : reader.GetString(3)
+            });
+        }
+
+        return list;
+    }
 
 }

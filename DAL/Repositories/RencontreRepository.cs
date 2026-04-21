@@ -165,33 +165,4 @@ public class RencontreRepository : IRencontreRepository
         return rows > 0;
     }
 
-    public async Task<List<Rencontre>> GetByTournoiAndRondeAsync(int tournoiId, int ronde)
-    {
-        List<Rencontre> list = new();
-
-        using SqlConnection connection = new SqlConnection(_connectionString);
-        string query = @"
-        SELECT Id, Resultat
-        FROM Rencontre
-        WHERE TournoiId = @TournoiId AND Ronde = @Ronde";
-
-        using SqlCommand cmd = new SqlCommand(query, connection);
-        cmd.Parameters.AddWithValue("@TournoiId", tournoiId);
-        cmd.Parameters.AddWithValue("@Ronde", ronde);
-
-        await connection.OpenAsync();
-        using SqlDataReader reader = await cmd.ExecuteReaderAsync();
-
-        while (await reader.ReadAsync())
-        {
-            list.Add(new Rencontre
-            {
-                Id = reader.GetInt32(0),
-                Resultat = reader.IsDBNull(1) ? null : reader.GetString(1)
-            });
-        }
-
-        return list;
-    }
-
 }

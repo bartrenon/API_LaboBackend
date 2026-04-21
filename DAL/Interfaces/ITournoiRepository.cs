@@ -21,4 +21,6 @@ public interface ITournoiRepository
     Task<bool> UpdateRondeAsync(int tournoiId, int nouvelleRonde, string nouveauStatut);
 
     Task<bool> CloturerAsync(int tournoiId);
+
+    Task<List<Rencontre>> GetByTournoiAndRondeAsync(int tournoiId, int? ronde);
 }
