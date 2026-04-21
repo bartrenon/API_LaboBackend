@@ -15,4 +15,10 @@ public interface ITournoiRepository
     Task<bool> DeleteAsync(int id);
 
     Task<List<Tournoi>> GetLastNotClosedAsync();
+
+    Task<bool> StartAsync(int id, int rondeCourante, DateTime dateMiseAJour);
+
+    Task<bool> UpdateRondeAsync(int tournoiId, int nouvelleRonde, string nouveauStatut);
+
+    Task<bool> CloturerAsync(int tournoiId);
 }

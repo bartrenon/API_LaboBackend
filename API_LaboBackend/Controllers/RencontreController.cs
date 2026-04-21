@@ -52,5 +52,20 @@ public class RencontreController : ControllerBase
 
         return Ok(results);
     }
+
+    [HttpPut("{id}/resultat")]
+    public async Task<IActionResult> ModifierResultat(int id, [FromBody] string resultat)
+    {
+       
+        bool ok = await _rencontreService.ModifierResultatAsync(id, resultat);
+
+        if (!ok) 
+        {
+            return NotFound();
+        }
+
+        return Ok(new { message = "Résultat mis à jour." });
+
+    }
 }
 

@@ -85,6 +85,20 @@ public class TournoiController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = tournoi.Id }, TournoiMapper.ToTournoiAll(tournoi));
     }
 
+    [HttpPost("{id}/demarrer")]
+    public async Task<IActionResult> Demarrer(int id)
+    {
+        
+        bool ok = await _tournoiService.DemarrerAsync(id);
+            
+        if (!ok) 
+        {
+            return NotFound();
+        }
+
+        return Ok(new { message = "Tournoi démarré avec succès." });
+    }
+
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(int id)
     {
@@ -93,4 +107,33 @@ public class TournoiController : ControllerBase
         return NoContent();
     }
 
+    [HttpPost("{id}/next-round")]
+    public async Task<IActionResult> PasserRonde(int id)
+    {
+        
+        bool ok = await _tournoiService.PasserRondeSuivanteAsync(id);
+
+        if (!ok) 
+        {
+            return NotFound();
+        }
+        
+        return Ok(new { message = "Passage à la ronde suivante effectué." });
+        
+    }
+
+    [HttpPost("{id}/cloturer")]
+    public async Task<IActionResult> Cloturer(int id)
+    {
+        
+         bool ok = await _tournoiService.CloturerTournoiAsync(id);
+
+        if (!ok) 
+        {
+            return NotFound();
+        }    
+
+        return Ok(new { message = "Tournoi clôturé avec succès." });
+        
+    }
 }

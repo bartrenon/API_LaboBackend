@@ -257,4 +257,63 @@ public class TournoiRepository : ITournoiRepository
 
         return tournoi;
     }
+
+    public async Task<bool> StartAsync(int id, int rondeCourante, DateTime dateMiseAJour)
+    {
+        using SqlConnection connection = new SqlConnection(_connectionString);
+        string query = @"
+            UPDATE Tournoi
+            SET Statut = 'En cours',
+                RondeCourante = @RondeCourante,
+                DateMiseAJour = @DateMiseAJour
+            WHERE Id = @Id";
+
+        using SqlCommand cmd = new SqlCommand(query, connection);
+        cmd.Parameters.AddWithValue("@Id", id);
+        cmd.Parameters.AddWithValue("@RondeCourante", rondeCourante);
+        cmd.Parameters.AddWithValue("@DateMiseAJour", dateMiseAJour);
+
+        await connection.OpenAsync();
+        int rows = await cmd.ExecuteNonQueryAsync();
+        return rows > 0;
+    }
+
+    public async Task<bool> UpdateRondeAsync(int tournoiId, int nouvelleRonde, string nouveauStatut)
+    {
+        using SqlConnection connection = new SqlConnection(_connectionString);
+
+        string query = @"
+        UPDATE Tournoi
+        SET RondeCourante = @Ronde,
+            Statut = @Statut,
+            DateMiseAJour = GETDATE()
+        WHERE Id = @Id";
+
+        using SqlCommand cmd = new SqlCommand(query, connection);
+        cmd.Parameters.AddWithValue("@Id", tournoiId);
+        cmd.Parameters.AddWithValue("@Ronde", nouvelleRonde);
+        cmd.Parameters.AddWithValue("@Statut", nouveauStatut);
+
+        await connection.OpenAsync();
+        return await cmd.ExecuteNonQueryAsync() > 0;
+    }
+
+    public async Task<bool> CloturerAsync(int tournoiId)
+    {
+        using SqlConnection connection = new SqlConnection(_connectionString);
+
+        string query = @"
+        UPDATE Tournoi
+        SET Statut = 'Clôturé',
+            DateMiseAJour = GETDATE()
+        WHERE Id = @Id";
+
+        using SqlCommand cmd = new SqlCommand(query, connection);
+        cmd.Parameters.AddWithValue("@Id", tournoiId);
+
+        await connection.OpenAsync();
+        return await cmd.ExecuteNonQueryAsync() > 0;
+    }
+
+
 }

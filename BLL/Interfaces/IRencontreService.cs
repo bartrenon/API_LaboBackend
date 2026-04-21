@@ -9,4 +9,6 @@ public interface IRencontreService
     Task<Rencontre?> GetByIdAsync(int id);
 
     Task<int> CreateAsync(Rencontre rencontre);
+
+    Task<bool> ModifierResultatAsync(int rencontreId, string resultat);
 }

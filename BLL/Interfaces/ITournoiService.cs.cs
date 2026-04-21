@@ -10,10 +10,18 @@ public interface ITournoiService
 
     Task<Tournoi?> GetByIdAsync(int id);
 
-    public Task<Tournoi?> GetDetails(int id);
+    Task<Tournoi?> GetDetails(int id);
 
     Task<int> CreateAsync(Tournoi tournoi);
 
     Task DeleteAsync(int id);
+
+    Task<bool> DemarrerAsync(int tournoiId);
+
+    Task GenererRencontresRoundRobin(Tournoi tournoi);
+
+    Task<bool> PasserRondeSuivanteAsync(int tournoiId);
+
+    Task<bool> CloturerTournoiAsync(int tournoiId);
 
 }
