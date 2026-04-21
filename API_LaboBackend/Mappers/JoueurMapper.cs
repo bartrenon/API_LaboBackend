@@ -13,7 +13,6 @@ public class JoueurMapper
         {
             Pseudo = j.Pseudo,
             Email = j.Email,
-            MotDePasseHash = j.MotDePasseHash,
             DateNaissance = j.DateNaissance,
             Genre = j.Genre,
             Elo = j.Elo

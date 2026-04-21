@@ -8,10 +8,12 @@ namespace BLL.Services;
 public class JoueurService : IJoueurService
 {
     private readonly IJoueurRepository _joueurRepository;
+    private readonly IEmailService _emailService;
 
-    public JoueurService(IJoueurRepository joueurRepository)
+    public JoueurService(IJoueurRepository joueurRepository, IEmailService emailService)
     {
         _joueurRepository = joueurRepository;
+        _emailService = emailService;
     }
 
     public async Task<int> CreateAsync(Joueur joueur)
@@ -44,11 +46,16 @@ public class JoueurService : IJoueurService
         {
             throw new Exception("Email ou pseudo déjà utilisé");
         }
-           
-        joueur.MotDePasseHash = BCrypt.Net.BCrypt.HashPassword(joueur.MotDePasseHash);
+
+        string motDePasse = GenererMotDePasse();
+        joueur.MotDePasseHash = BCrypt.Net.BCrypt.HashPassword(motDePasse);
         joueur.Elo = 1200;
 
-        return await _joueurRepository.CreateAsync(joueur);
+        int result = await _joueurRepository.CreateAsync(joueur);
+
+        await _emailService.SendPasswordEmailAsync(joueur.Email,joueur.Pseudo ,motDePasse);
+
+        return result;
     }
 
     public async Task<List<Joueur>> GetAllAsync()
@@ -59,5 +66,13 @@ public class JoueurService : IJoueurService
     public async Task<Joueur?> GetByIdAsync(int id)
     {
         return await _joueurRepository.GetByIdAsync(id);
+    }
+
+    public static string GenererMotDePasse(int longueur = 12)
+    {
+        const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
+        var random = new Random();
+        return new string(Enumerable.Repeat(chars, longueur)
+            .Select(s => s[random.Next(s.Length)]).ToArray());
     }
 }
