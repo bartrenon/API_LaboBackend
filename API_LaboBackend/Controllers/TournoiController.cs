@@ -18,7 +18,7 @@ public class TournoiController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<TournoiAll>>> GetAll()
+    public async Task<ActionResult<List<TournoiShort>>> GetAll()
     {
         List<Tournoi> tournois = await _tournoiService.GetAllAsync();
 

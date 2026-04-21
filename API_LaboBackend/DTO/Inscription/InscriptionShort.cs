@@ -1,4 +1,6 @@
-﻿namespace API_LaboBackend.DTO.Inscription;
+﻿using System.Text.Json.Serialization;
+
+namespace API_LaboBackend.DTO.Inscription;
 
 public class InscriptionShort
 {

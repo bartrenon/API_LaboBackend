@@ -14,47 +14,81 @@ public class TournoiService : ITournoiService
         _tournoiRepository = tournoiRepository;
     }
 
-    public Task<int> CreateAsync(Tournoi tournoi)
+    public async Task<int> CreateAsync(Tournoi tournoi)
     {
-        if(tournoi.EloMin > tournoi.EloMax && tournoi.EloMax != 0) 
+        
+        if (string.IsNullOrWhiteSpace(tournoi.Nom)) 
         {
-            throw new Exception("elo min ne peut etre superieur elo max");
+            throw new ArgumentException("Le nom du tournoi est obligatoire");
         }
 
-        if(tournoi.MinJoueurs > tournoi.MaxJoueurs) 
+        if (string.IsNullOrWhiteSpace(tournoi.Lieu)) 
         {
-            throw new Exception("Joueur min ne peut etre superieur Joueur max");
+            throw new ArgumentException("Le lieu du tournoi est obligatoire");
+        }
+            
+        if (tournoi.MinJoueurs <= 0) 
+        {
+            throw new ArgumentException("Le nombre minimum de joueurs doit être supérieur à 0");
         }
 
-        if (tournoi.DateFinInscriptions <= DateTime.Now.AddDays(tournoi.MinJoueurs))
+        if (tournoi.MaxJoueurs <= 0) 
         {
-            throw new Exception("La date de fin des inscriptions n'est pas valide");
+            throw new ArgumentException("Le nombre maximum de joueurs doit être supérieur à 0");
         }
 
-        return _tournoiRepository.CreateAsync(tournoi);
+        if (tournoi.Categories == null || tournoi.Categories.Count == 0) 
+        {
+            throw new ArgumentException("Le tournoi doit contenir au moins une catégorie");
+        }
+           
+        if (tournoi.MinJoueurs > tournoi.MaxJoueurs) 
+        {
+            throw new ArgumentException("Le nombre minimum de joueurs ne peut pas dépasser le maximum");
+        }
+            
+        if (tournoi.EloMax != 0 && tournoi.EloMin > tournoi.EloMax) 
+        {
+            throw new ArgumentException("L'ELO minimum ne peut pas dépasser l'ELO maximum");
+        }
+            
+        if (tournoi.DateFinInscriptions <= DateTime.Now.AddDays(tournoi.MinJoueurs)) 
+        {
+            throw new ArgumentException("La date de fin des inscriptions n'est pas valide");
+        }
+            
+        tournoi.RondeCourante = 0;
+        tournoi.Statut = "en attente de joueurs";
+        tournoi.DateCreation = DateTime.Now;
+        tournoi.DateMiseAJour = DateTime.Now;
+
+        return await _tournoiRepository.CreateAsync(tournoi);
     }
+
 
     public async Task DeleteAsync(int id)
     {
-        Tournoi? tournoi = _tournoiRepository.GetByIdAsync(id).Result;
+        
+        Tournoi? tournoi = await _tournoiRepository.GetByIdAsync(id);
 
-        if(tournoi == null)
+        if (tournoi == null) 
         {
-            throw new KeyNotFoundException("Ce tournoi n'exite pas");
+            throw new KeyNotFoundException("Ce tournoi n'existe pas");
         }
-
-        if (tournoi.DateFinInscriptions < DateTime.Today)
+            
+        if (tournoi.DateFinInscriptions <= DateTime.Now) 
         {
-            throw new Exception("Il est imposible de suprimer un tournoi qui à déja commencé");
+            throw new InvalidOperationException("Impossible de supprimer un tournoi qui a déjà commencé");
         }
-
+           
         bool deleted = await _tournoiRepository.DeleteAsync(id);
 
-        if (!deleted)
+        if (!deleted) 
         {
             throw new KeyNotFoundException("Tournoi introuvable");
         }
     }
+
 
     public Task<List<Tournoi>> GetAllAsync()
     {
