@@ -1,4 +1,5 @@
 ﻿using BLL.Dto;
+using DAL.Dto;
 using Domain.Entities;
 
 namespace BLL.Interfaces;
@@ -13,7 +14,7 @@ public interface ITournoiService
 
     Task<Tournoi?> GetDetails(int id);
 
-    Task<int> CreateAsync(Tournoi tournoi);
+    Task<int> CreateAsync(TournoiCreate tournoi);
 
     Task DeleteAsync(int id);
 

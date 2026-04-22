@@ -1,4 +1,5 @@
-﻿using DAL.Interfaces;
+﻿using DAL.Dto;
+using DAL.Interfaces;
 using DAL.Mapper;
 using DAL.Mappers;
 using Domain.Entities;
@@ -16,7 +17,7 @@ public class TournoiRepository : ITournoiRepository
         _connectionString = configuration.GetConnectionString("DefaultConnection")!;
     }
 
-    public async Task<int> CreateAsync(Tournoi t)
+    public async Task<int> CreateAsync(TournoiCreate t)
     {
         using SqlConnection connection = new SqlConnection(_connectionString);
 
@@ -39,13 +40,31 @@ public class TournoiRepository : ITournoiRepository
         command.Parameters.AddWithValue("@EloMax", t.EloMax);
         command.Parameters.AddWithValue("@WomenOnly", t.WomenOnly);
         command.Parameters.AddWithValue("@DateFinInscriptions", t.DateFinInscriptions);
-        command.Parameters.AddWithValue("@RondeCourante", t.RondeCourante);
-        command.Parameters.AddWithValue("@Statut", t.Statut);
-        command.Parameters.AddWithValue("@DateCreation", t.DateCreation);
-        command.Parameters.AddWithValue("@DateMiseAJour", t.DateMiseAJour);
+        command.Parameters.AddWithValue("@RondeCourante", 0);
+        command.Parameters.AddWithValue("@Statut", "en attente de joueurs");
+        command.Parameters.AddWithValue("@DateCreation", DateTime.Now);
+        command.Parameters.AddWithValue("@DateMiseAJour", DateTime.Now);
 
         await connection.OpenAsync();
-        return Convert.ToInt32(await command.ExecuteScalarAsync());
+        int idTournoi =  Convert.ToInt32(await command.ExecuteScalarAsync());
+
+        if (t.CategoriesIds != null && t.CategoriesIds.Count > 0)
+        {
+            foreach (int catId in t.CategoriesIds)
+            {
+                string queryCat = @"
+                INSERT INTO TournoiCategorie (TournoiId, CategorieId)
+                VALUES (@TournoiId, @CategorieId);";
+
+                using SqlCommand cmdCat = new SqlCommand(queryCat, connection);
+                cmdCat.Parameters.AddWithValue("@TournoiId", idTournoi);
+                cmdCat.Parameters.AddWithValue("@CategorieId", catId);
+
+                await cmdCat.ExecuteNonQueryAsync();
+            }
+        }
+
+        return idTournoi;
     }
 
     public async Task<bool> DeleteAsync(int id)

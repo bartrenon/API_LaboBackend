@@ -1,4 +1,4 @@
-﻿namespace API_LaboBackend.DTO.Tournoi;
+﻿namespace DAL.Dto;
 
 public class TournoiCreate
 {
@@ -10,4 +10,6 @@ public class TournoiCreate
     public int? EloMax { get; set; }
     public bool WomenOnly { get; set; }
     public DateTime DateFinInscriptions { get; set; }
+
+    public List<int> CategoriesIds { get; set; } = new List<int>();
 }

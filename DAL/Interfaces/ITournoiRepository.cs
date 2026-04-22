@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using DAL.Dto;
+using Domain.Entities;
 
 namespace DAL.Interfaces;
 
@@ -9,8 +10,7 @@ public interface ITournoiRepository
     Task<Tournoi?> GetByIdAsync(int id);
 
     public Task<Tournoi?> GetDetails(int id);
-
-    Task<int> CreateAsync(Tournoi tournoi);
+    Task<int> CreateAsync(TournoiCreate t);
 
     Task<bool> DeleteAsync(int id);
 

@@ -1,7 +1,8 @@
-﻿using BLL.Dto;
+﻿using DAL.Dto;
 using BLL.Interfaces;
 using DAL.Interfaces;
 using Domain.Entities;
+using BLL.Dto;
 
 namespace BLL.Services;
 
@@ -16,7 +17,7 @@ public class TournoiService : ITournoiService
         _rencontreRepository = rencontreRepository;
     }
 
-    public async Task<int> CreateAsync(Tournoi tournoi)
+    public async Task<int> CreateAsync(TournoiCreate tournoi)
     {
         
         if (string.IsNullOrWhiteSpace(tournoi.Nom)) 
@@ -39,7 +40,7 @@ public class TournoiService : ITournoiService
             throw new ArgumentException("Le nombre maximum de joueurs doit être supérieur à 0");
         }
 
-        if (tournoi.Categories == null || tournoi.Categories.Count == 0) 
+        if (tournoi.CategoriesIds == null || tournoi.CategoriesIds.Count == 0) 
         {
             throw new ArgumentException("Le tournoi doit contenir au moins une catégorie");
         }
@@ -58,15 +59,9 @@ public class TournoiService : ITournoiService
         {
             throw new ArgumentException("La date de fin des inscriptions n'est pas valide");
         }
-            
-        tournoi.RondeCourante = 0;
-        tournoi.Statut = "en attente de joueurs";
-        tournoi.DateCreation = DateTime.Now;
-        tournoi.DateMiseAJour = DateTime.Now;
 
         return await _tournoiRepository.CreateAsync(tournoi);
     }
-
 
     public async Task DeleteAsync(int id)
     {
@@ -90,7 +85,6 @@ public class TournoiService : ITournoiService
             throw new KeyNotFoundException("Tournoi introuvable");
         }
     }
-
 
     public Task<List<Tournoi>> GetAllAsync()
     {

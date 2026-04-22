@@ -1,6 +1,7 @@
 ﻿using API_LaboBackend.DTO.Tournoi;
 using API_LaboBackend.Mappers;
 using BLL.Interfaces;
+using DAL.Dto;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -78,9 +79,14 @@ public class TournoiController : ControllerBase
     [HttpPost]
     public async Task<ActionResult> Create(TournoiCreate t)
     {
+        if(t  == null) 
+        {
+            throw new ArgumentNullException(nameof(t));
+        }
+
         Tournoi tournoi = TournoiMapper.ToTournoi(t);
 
-        tournoi.Id = await _tournoiService.CreateAsync(tournoi);
+        tournoi.Id = await _tournoiService.CreateAsync(t);
 
         return CreatedAtAction(nameof(GetById), new { id = tournoi.Id }, TournoiMapper.ToTournoiAll(tournoi));
     }

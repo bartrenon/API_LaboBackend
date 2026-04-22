@@ -1,4 +1,5 @@
 ﻿using API_LaboBackend.DTO.Tournoi;
+using DAL.Dto;
 using Domain.Entities;
 
 namespace API_LaboBackend.Mappers;

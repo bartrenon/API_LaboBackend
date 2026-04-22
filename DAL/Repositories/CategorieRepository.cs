@@ -21,6 +21,7 @@ public class CategorieRepository : ICategorieRepository
         using SqlConnection connection = new SqlConnection(_connectionString);
         string query = @"
         INSERT INTO Categorie (Nom, AgeMax, AgeMin)
+        OUTPUT INSERTED.Id
         VALUES (@Nom, @AgeMax, @AgeMin);";
 
         using SqlCommand command = new SqlCommand(query, connection);
