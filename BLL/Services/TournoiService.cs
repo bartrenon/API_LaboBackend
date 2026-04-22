@@ -63,6 +63,34 @@ public class TournoiService : ITournoiService
         return await _tournoiRepository.CreateAsync(tournoi);
     }
 
+    public async Task<bool> CloturerTournoiAsync(int Id)
+    {
+        Tournoi? tournoi = await _tournoiRepository.GetDetails(Id);
+
+        if (tournoi == null)
+        {
+            throw new Exception("Tournoi introuvable");
+        }
+
+        int totalRondes = tournoi.JoueursInscrits.Count - 1;
+
+
+        if (tournoi.RondeCourante <= totalRondes)
+        {
+            throw new Exception("Le tournoi n'est pas encore terminé");
+        }
+
+
+        List<Rencontre> rencontresDerniereRonde = await _tournoiRepository.GetByTournoiAndRondeAsync(Id, totalRondes);
+
+        if (rencontresDerniereRonde.Any(r => string.IsNullOrEmpty(r.Resultat)))
+        {
+            throw new Exception("Toutes les rencontres doivent être terminées avant de clôturer");
+        }
+
+        return await _tournoiRepository.CloturerAsync(Id);
+    }
+
     public async Task DeleteAsync(int id)
     {
         
@@ -106,9 +134,9 @@ public class TournoiService : ITournoiService
         return _tournoiRepository.GetLastNotClosedAsync();
     }
 
-    public async Task<bool> DemarrerAsync(int tournoiId)
+    public async Task<bool> DemarrerAsync(int Id)
     {
-        var tournoi = await _tournoiRepository.GetDetails(tournoiId);
+        var tournoi = await _tournoiRepository.GetDetails(Id);
 
         if (tournoi == null) 
         {
@@ -127,10 +155,7 @@ public class TournoiService : ITournoiService
             
         await GenererRencontresRoundRobin(tournoi);
 
-        int nouvelleRonde = 1;
-        DateTime maintenant = DateTime.Now;
-
-        return await _tournoiRepository.StartAsync(tournoi.Id, nouvelleRonde, maintenant);
+        return await _tournoiRepository.StartAsync(tournoi.Id);
     }
 
     public async Task GenererRencontresRoundRobin(Tournoi tournoi)
@@ -216,34 +241,6 @@ public class TournoiService : ITournoiService
         string nouveauStatut = prochaineRonde > totalRondes ? "Clôturé" : "En cours";
 
         return await _tournoiRepository.UpdateRondeAsync(tournoiId, prochaineRonde, nouveauStatut );
-    }
-
-    public async Task<bool> CloturerTournoiAsync(int tournoiId)
-    {
-        Tournoi? tournoi = await _tournoiRepository.GetDetails(tournoiId);
-        
-        if (tournoi == null) 
-        {
-            throw new Exception("Tournoi introuvable");
-        }
-
-        int totalRondes = tournoi.JoueursInscrits.Count - 1;
-
-       
-        if (tournoi.RondeCourante <= totalRondes) 
-        {
-            throw new Exception("Le tournoi n'est pas encore terminé");
-        }
-           
-        
-        List<Rencontre> rencontresDerniereRonde =  await _tournoiRepository.GetByTournoiAndRondeAsync(tournoiId, totalRondes);
-
-        if (rencontresDerniereRonde.Any(r => string.IsNullOrEmpty(r.Resultat))) 
-        {
-            throw new Exception("Toutes les rencontres doivent être terminées avant de clôturer");
-        } 
-
-        return await _tournoiRepository.CloturerAsync(tournoiId);
     }
 
 

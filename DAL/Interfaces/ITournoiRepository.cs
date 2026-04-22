@@ -16,11 +16,11 @@ public interface ITournoiRepository
 
     Task<List<Tournoi>> GetLastNotClosedAsync();
 
-    Task<bool> StartAsync(int id, int rondeCourante, DateTime dateMiseAJour);
+    Task<bool> StartAsync(int id);
 
     Task<bool> UpdateRondeAsync(int tournoiId, int nouvelleRonde, string nouveauStatut);
 
-    Task<bool> CloturerAsync(int tournoiId);
+    Task<bool> CloturerAsync(int Id);
 
     Task<List<Rencontre>> GetByTournoiAndRondeAsync(int tournoiId, int? ronde);
 }

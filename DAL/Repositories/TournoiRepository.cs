@@ -5,6 +5,7 @@ using DAL.Mappers;
 using Domain.Entities;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using System.Data;
 
 namespace DAL.Repositories;
 
@@ -206,95 +207,91 @@ public class TournoiRepository : ITournoiRepository
         using SqlConnection connection = new SqlConnection(_connectionString);
         await connection.OpenAsync();
 
-        string queryTournoi = "SELECT * FROM Tournoi WHERE Id = @Id";
-        using (SqlCommand cmd = new SqlCommand(queryTournoi, connection))
-        {
-            cmd.Parameters.AddWithValue("@Id", id);
+        string query= @"SELECT * FROM Tournoi WHERE Id = @Id;
 
-            using SqlDataReader reader = await cmd.ExecuteReaderAsync();
-            if (await reader.ReadAsync())
-            {
-                tournoi = TournoiMapper.ToTournoi(reader);
-            }
+                        SELECT j.* FROM Inscription i 
+                        INNER JOIN Joueur j ON j.Id = i.JoueurId WHERE i.TournoiId = @Id;
+                        
+                        SELECT c.* FROM Categorie c 
+                        INNER JOIN TournoiCategorie tc ON tc.CategorieId = c.Id WHERE tc.TournoiId = @Id;
+                        
+                        SELECT r.* FROM Rencontre r
+                        INNER JOIN Tournoi t ON t.Id = r.TournoiId
+                        WHERE t.Id = @Id AND r.Ronde = t.RondeCourante;";
+
+        using SqlCommand cmd = new SqlCommand(query, connection);
+        cmd.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+
+        using SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+        if (await reader.ReadAsync())
+        {
+            tournoi = TournoiMapper.ToTournoi(reader);
         }
 
-        if (tournoi == null)
+        if (tournoi == null) 
+        {
             return null;
-
-        string queryJoueurs = @"SELECT j.*
-                                FROM Inscription i
-                                INNER JOIN Joueur j ON j.Id = i.JoueurId
-                                WHERE i.TournoiId = @Id";
-
-        using (SqlCommand cmd = new SqlCommand(queryJoueurs, connection))
-        {
-            cmd.Parameters.AddWithValue("@Id", id);
-
-            using SqlDataReader reader = await cmd.ExecuteReaderAsync();
-            while (await reader.ReadAsync())
-            {
-                tournoi.JoueursInscrits.Add(JoueurMapper.ToJoueur(reader));
-            }
         }
 
+        await reader.NextResultAsync();
 
-        string queryCategories = @"
-                                  SELECT c.*
-                                  FROM Categorie c
-                                  INNER JOIN TournoiCategorie tc ON tc.CategorieId = c.Id
-                                  WHERE tc.TournoiId = @Id;";
-
-        using (SqlCommand cmd = new SqlCommand(queryCategories, connection))
+        while (await reader.ReadAsync()) 
         {
-            cmd.Parameters.AddWithValue("@Id", id);
-
-            using SqlDataReader reader = await cmd.ExecuteReaderAsync();
-            while (await reader.ReadAsync())
-            {
-                tournoi.Categories.Add(CategorieMapper.ToCategorie(reader));
-            }
+            tournoi.JoueursInscrits.Add(JoueurMapper.ToJoueur(reader));
         }
 
+        await reader.NextResultAsync();
 
-        string queryRencontres = @" SELECT *
-                                    FROM Rencontre
-                                    WHERE TournoiId = @Id
-                                    AND Ronde = @RondeCourante";
-
-        using (SqlCommand cmd = new SqlCommand(queryRencontres, connection))
+        while (await reader.ReadAsync())
         {
-            cmd.Parameters.AddWithValue("@Id", id);
-            cmd.Parameters.AddWithValue("@RondeCourante", tournoi.RondeCourante);
-
-            using SqlDataReader reader = await cmd.ExecuteReaderAsync();
-            while (await reader.ReadAsync())
-            {
-                tournoi.Rencontres.Add(RencontreMapper.ToRencontre(reader));
-            }
+            tournoi.Categories.Add(CategorieMapper.ToCategorie(reader));
         }
 
+        await reader.NextResultAsync();
+
+        while (await reader.ReadAsync())
+        {
+            tournoi.Rencontres.Add(RencontreMapper.ToRencontre(reader));
+        }
 
         return tournoi;
     }
 
-    public async Task<bool> StartAsync(int id, int rondeCourante, DateTime dateMiseAJour)
+    public async Task<bool> StartAsync(int id)
     {
         using SqlConnection connection = new SqlConnection(_connectionString);
         string query = @"
             UPDATE Tournoi
             SET Statut = 'En cours',
-                RondeCourante = @RondeCourante,
-                DateMiseAJour = @DateMiseAJour
+                RondeCourante = 1,
+                DateMiseAJour = GETDATE()
             WHERE Id = @Id";
 
         using SqlCommand cmd = new SqlCommand(query, connection);
-        cmd.Parameters.AddWithValue("@Id", id);
-        cmd.Parameters.AddWithValue("@RondeCourante", rondeCourante);
-        cmd.Parameters.AddWithValue("@DateMiseAJour", dateMiseAJour);
+        cmd.Parameters.Add("@Id", SqlDbType.Int).Value = id;
 
         await connection.OpenAsync();
         int rows = await cmd.ExecuteNonQueryAsync();
+
         return rows > 0;
+    }
+
+    public async Task<bool> CloturerAsync(int id)
+    {
+        using SqlConnection connection = new SqlConnection(_connectionString);
+
+        string query = @"
+        UPDATE Tournoi
+        SET Statut = 'Clôturé',
+            DateMiseAJour = GETDATE()
+        WHERE Id = @Id";
+
+        using SqlCommand cmd = new SqlCommand(query, connection);
+        cmd.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+
+        await connection.OpenAsync();
+        return await cmd.ExecuteNonQueryAsync() > 0;
     }
 
     public async Task<bool> UpdateRondeAsync(int tournoiId, int nouvelleRonde, string nouveauStatut)
@@ -317,22 +314,6 @@ public class TournoiRepository : ITournoiRepository
         return await cmd.ExecuteNonQueryAsync() > 0;
     }
 
-    public async Task<bool> CloturerAsync(int tournoiId)
-    {
-        using SqlConnection connection = new SqlConnection(_connectionString);
-
-        string query = @"
-        UPDATE Tournoi
-        SET Statut = 'Clôturé',
-            DateMiseAJour = GETDATE()
-        WHERE Id = @Id";
-
-        using SqlCommand cmd = new SqlCommand(query, connection);
-        cmd.Parameters.AddWithValue("@Id", tournoiId);
-
-        await connection.OpenAsync();
-        return await cmd.ExecuteNonQueryAsync() > 0;
-    }
 
     public async Task<List<Rencontre>> GetByTournoiAndRondeAsync(int tournoiId, int? ronde)
     {

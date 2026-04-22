@@ -7,6 +7,12 @@ public class GlobalExceptionHandler : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
+
+        if (httpContext.Request.Path.StartsWithSegments("/swagger"))
+        {
+            return false;
+        }
+
         var problemDetails = new ProblemDetails();
 
         switch (exception)

@@ -18,13 +18,13 @@ public interface ITournoiService
 
     Task DeleteAsync(int id);
 
-    Task<bool> DemarrerAsync(int tournoiId);
+    Task<bool> DemarrerAsync(int id);
 
     Task GenererRencontresRoundRobin(Tournoi tournoi);
 
     Task<bool> PasserRondeSuivanteAsync(int tournoiId);
 
-    Task<bool> CloturerTournoiAsync(int tournoiId);
+    Task<bool> CloturerTournoiAsync(int id);
 
     Task<List<Score>> GetScoresAsync(int tournoiId, int? ronde);
 
