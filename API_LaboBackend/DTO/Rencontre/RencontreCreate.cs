@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace API_LaboBackend.DTO.Rencontre;
+﻿namespace API_LaboBackend.DTO.Rencontre;
 
 public class RencontreCreate
 {

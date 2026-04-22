@@ -8,8 +8,10 @@ public class TournoiAll : TournoiShort
 {
     [JsonPropertyOrder(50)]
     public List<InscriptionShort> Inscriptions { get; set; } = new();
+
     [JsonPropertyOrder(51)]
     public List<CategorieShort> Categories { get; set; } = new();
+
     [JsonPropertyOrder(52)]
     public List<RencontreShort> Rencontres { get; set; } = new();
 }

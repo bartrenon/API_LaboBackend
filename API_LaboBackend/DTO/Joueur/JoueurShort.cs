@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace API_LaboBackend.DTO.Joueur;
+﻿namespace API_LaboBackend.DTO.Joueur;
 
 public class JoueurShort 
 {

@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace API_LaboBackend.DTO.Categorie;
+﻿namespace API_LaboBackend.DTO.Categorie;
 
 public class CategorieShort 
 {

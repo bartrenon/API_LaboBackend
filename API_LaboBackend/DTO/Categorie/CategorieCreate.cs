@@ -1,7 +1,4 @@
-﻿using API_LaboBackend.DTO.Tournoi;
-using System.Text.Json.Serialization;
-
-namespace API_LaboBackend.DTO.Categorie;
+﻿namespace API_LaboBackend.DTO.Categorie;
 
 public class CategorieCreate
 {

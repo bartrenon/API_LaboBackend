@@ -9,8 +9,10 @@ namespace API_LaboBackend.DTO.Tournoi
     {
         [JsonPropertyOrder(50)]
         public List<JoueurShort> Joueurs { get; set; } = new();
+
         [JsonPropertyOrder(51)]
         public List<CategorieShort> Categories { get; set; } = new();
+
         [JsonPropertyOrder(52)]
         public List<RencontreShort> Rencontres { get; set; } = new();
     }
