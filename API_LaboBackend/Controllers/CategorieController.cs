@@ -21,12 +21,20 @@ public class CategorieController : ControllerBase
     [HttpPost]
     public async Task<ActionResult> Create(CategorieCreate c)
     {
+        if (c is null) 
+        {
+            return BadRequest();
+        } 
 
         Categorie categorie = CategorieMapper.ToCategorie(c);
 
-        categorie.Id = await _categorieService.CreateAsync(categorie);
+        int newId = await _categorieService.CreateAsync(categorie);
 
-        return CreatedAtAction(nameof(GetById), new { id = categorie.Id }, categorie);
+        categorie.Id = newId;
+
+        CategorieAll result = CategorieMapper.ToCategorieAll(categorie);
+
+        return CreatedAtAction(nameof(GetById), new { id = newId }, result);
     }
 
     [HttpGet("{id}")]
@@ -34,22 +42,28 @@ public class CategorieController : ControllerBase
     {
         Categorie? categorie = await _categorieService.GetByIdAsync(id);
 
-        if (categorie != null)
+        if (categorie is null) 
         {
-            CategorieAll result = CategorieMapper.ToCategorieAll(categorie);
+            return NotFound();
+        } 
 
-            return Ok(result);
-        }
+        CategorieAll result = CategorieMapper.ToCategorieAll(categorie);
 
-        return NotFound();
+        return Ok(result);
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<CategorieAll>>> GetAll()
+    [ProducesResponseType(typeof(List<CategorieAll>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<CategorieAll>>> GetAll()
     {
         List<Categorie> categories = await _categorieService.GetAllAsync();
 
-        List<CategorieAll> results = categories.Select(c => CategorieMapper.ToCategorieAll(c)).ToList();
+        if (categories == null || !categories.Any()) 
+        {
+            return Ok(new List<CategorieAll>());
+        }
+
+        List<CategorieAll> results = categories.Select(CategorieMapper.ToCategorieAll).ToList();
 
         return Ok(results);
     }

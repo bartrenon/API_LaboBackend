@@ -21,51 +21,56 @@ public class TournoiRepository : ITournoiRepository
     public async Task<int> CreateAsync(TournoiCreate t)
     {
         using SqlConnection connection = new SqlConnection(_connectionString);
-
-        string query = @"
-        INSERT INTO Tournoi 
-        (Nom, Lieu, MinJoueurs, MaxJoueurs, EloMin, EloMax, WomenOnly, 
-         DateFinInscriptions, RondeCourante, Statut, DateCreation, DateMiseAJour)
-        OUTPUT INSERTED.Id
-        VALUES 
-        (@Nom, @Lieu, @MinJoueurs, @MaxJoueurs, @EloMin, @EloMax, @WomenOnly,
-         @DateFinInscriptions, @RondeCourante, @Statut, @DateCreation, @DateMiseAJour);";
-
-        using SqlCommand command = new SqlCommand(query, connection);
-
-        command.Parameters.AddWithValue("@Nom", t.Nom);
-        command.Parameters.AddWithValue("@Lieu", t.Lieu);
-        command.Parameters.AddWithValue("@MinJoueurs", t.MinJoueurs);
-        command.Parameters.AddWithValue("@MaxJoueurs", t.MaxJoueurs);
-        command.Parameters.AddWithValue("@EloMin", t.EloMin);
-        command.Parameters.AddWithValue("@EloMax", t.EloMax);
-        command.Parameters.AddWithValue("@WomenOnly", t.WomenOnly);
-        command.Parameters.AddWithValue("@DateFinInscriptions", t.DateFinInscriptions);
-        command.Parameters.AddWithValue("@RondeCourante", 0);
-        command.Parameters.AddWithValue("@Statut", "en attente de joueurs");
-        command.Parameters.AddWithValue("@DateCreation", DateTime.Now);
-        command.Parameters.AddWithValue("@DateMiseAJour", DateTime.Now);
-
         await connection.OpenAsync();
-        int idTournoi =  Convert.ToInt32(await command.ExecuteScalarAsync());
 
-        if (t.CategoriesIds != null && t.CategoriesIds.Count > 0)
+        using SqlTransaction transaction = connection.BeginTransaction();
+
+        try
         {
-            foreach (int catId in t.CategoriesIds)
+            string query = @"INSERT INTO Tournoi 
+                             (Nom, Lieu, MinJoueurs, MaxJoueurs, EloMin, EloMax, WomenOnly, 
+                             DateFinInscriptions, RondeCourante, Statut, DateCreation, DateMiseAJour)
+                             OUTPUT INSERTED.Id
+                             VALUES (@Nom, @Lieu, @MinJoueurs, @MaxJoueurs, @EloMin, @EloMax, @WomenOnly,
+                             @DateFinInscriptions, 0, 'en attente de joueurs', GETDATE(), GETDATE());";
+
+            using SqlCommand command = new SqlCommand(query, connection, transaction);
+
+            command.Parameters.Add("@Nom", SqlDbType.NVarChar, 100).Value = t.Nom;
+            command.Parameters.Add("@Lieu", SqlDbType.NVarChar, 100).Value = t.Lieu;
+            command.Parameters.Add("@MinJoueurs", SqlDbType.Int).Value = t.MinJoueurs;
+            command.Parameters.Add("@MaxJoueurs", SqlDbType.Int).Value = t.MaxJoueurs;
+            command.Parameters.Add("@EloMin", SqlDbType.Int).Value = (object?)t.EloMin ?? DBNull.Value;
+            command.Parameters.Add("@EloMax", SqlDbType.Int).Value = (object?)t.EloMax ?? DBNull.Value;
+            command.Parameters.Add("@WomenOnly", SqlDbType.Bit).Value = t.WomenOnly;
+            command.Parameters.Add("@DateFinInscriptions", SqlDbType.Date).Value = t.DateFinInscriptions;
+
+            int idTournoi = Convert.ToInt32(await command.ExecuteScalarAsync());
+
+            if (t.CategoriesIds != null && t.CategoriesIds.Count > 0)
             {
-                string queryCat = @"
-                INSERT INTO TournoiCategorie (TournoiId, CategorieId)
-                VALUES (@TournoiId, @CategorieId);";
+                foreach (int catId in t.CategoriesIds)
+                {
+                    string queryCat = @"INSERT INTO TournoiCategorie (TournoiId, CategorieId)
+                                        VALUES (@TournoiId, @CategorieId);";
 
-                using SqlCommand cmdCat = new SqlCommand(queryCat, connection);
-                cmdCat.Parameters.AddWithValue("@TournoiId", idTournoi);
-                cmdCat.Parameters.AddWithValue("@CategorieId", catId);
+                    using SqlCommand cmdCat = new SqlCommand(queryCat, connection, transaction);
+                    cmdCat.Parameters.Add("@TournoiId", SqlDbType.Int).Value = idTournoi;
+                    cmdCat.Parameters.Add("@CategorieId", SqlDbType.Int).Value = catId;
 
-                await cmdCat.ExecuteNonQueryAsync();
+                    await cmdCat.ExecuteNonQueryAsync();
+                }
             }
-        }
 
-        return idTournoi;
+            transaction.Commit();
+
+            return idTournoi;
+        }
+        catch 
+        {
+            transaction.Rollback();
+            throw;
+        }
     }
 
     public async Task<bool> DeleteAsync(int id)
