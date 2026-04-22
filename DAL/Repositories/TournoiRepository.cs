@@ -113,61 +113,50 @@ public class TournoiRepository : ITournoiRepository
         using SqlConnection connection = new SqlConnection(_connectionString);
         await connection.OpenAsync();
 
-        string queryTournoi = "SELECT * FROM Tournoi WHERE Id = @Id";
-        using (SqlCommand cmd = new SqlCommand(queryTournoi, connection))
-        {
-            cmd.Parameters.AddWithValue("@Id", id);
+        string queryTournoi = @"SELECT * FROM Tournoi WHERE Id = @Id;
 
-            using SqlDataReader reader = await cmd.ExecuteReaderAsync();
-            if (await reader.ReadAsync())
-            {
-                tournoi = TournoiMapper.ToTournoi(reader);
-            }
+                                SELECT * FROM Inscription WHERE TournoiId = @Id;
+
+                                SELECT c.* FROM Categorie c
+                                INNER JOIN TournoiCategorie tc ON tc.CategorieId = c.Id
+                                WHERE tc.TournoiId = @Id;
+
+                                SELECT * FROM Rencontre  WHERE TournoiId = @Id ";
+
+        using SqlCommand cmd = new SqlCommand(queryTournoi, connection);
+
+        cmd.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+
+        using SqlDataReader reader = await cmd.ExecuteReaderAsync();
+        if (await reader.ReadAsync())
+        {
+            tournoi = TournoiMapper.ToTournoi(reader);
         }
 
-        if (tournoi == null)
+        if (tournoi == null) 
+        {
             return null;
-
-        string queryInscriptions = "SELECT * FROM Inscription WHERE TournoiId = @Id";
-        using (SqlCommand cmd = new SqlCommand(queryInscriptions, connection))
-        {
-            cmd.Parameters.AddWithValue("@Id", id);
-
-            using SqlDataReader reader = await cmd.ExecuteReaderAsync();
-            while (await reader.ReadAsync())
-            {
-                tournoi.Inscriptions.Add(InscriptionMapper.ToInscription(reader));
-            }
         }
 
-        string queryCategories = @"
-                                  SELECT c.*
-                                  FROM Categorie c
-                                  INNER JOIN TournoiCategorie tc ON tc.CategorieId = c.Id
-                                  WHERE tc.TournoiId = @Id;";
+        await reader.NextResultAsync();
 
-        using (SqlCommand cmd = new SqlCommand(queryCategories, connection))
+        while (await reader.ReadAsync())
         {
-            cmd.Parameters.AddWithValue("@Id", id);
-
-            using SqlDataReader reader = await cmd.ExecuteReaderAsync();
-            while (await reader.ReadAsync())
-            {
-                tournoi.Categories.Add(CategorieMapper.ToCategorie(reader));
-            }
+            tournoi.Inscriptions.Add(InscriptionMapper.ToInscription(reader));
         }
 
+        await reader.NextResultAsync();
 
-        string queryRencontres = "SELECT * FROM Rencontre WHERE TournoiId = @Id";
-        using (SqlCommand cmd = new SqlCommand(queryRencontres, connection))
+        while (await reader.ReadAsync())
         {
-            cmd.Parameters.AddWithValue("@Id", id);
+            tournoi.Categories.Add(CategorieMapper.ToCategorie(reader));
+        }
 
-            using SqlDataReader reader = await cmd.ExecuteReaderAsync();
-            while (await reader.ReadAsync())
-            {
-                tournoi.Rencontres.Add(RencontreMapper.ToRencontre(reader));
-            }
+        await reader.NextResultAsync();
+
+        while (await reader.ReadAsync())
+        {
+            tournoi.Rencontres.Add(RencontreMapper.ToRencontre(reader));
         }
 
         return tournoi;

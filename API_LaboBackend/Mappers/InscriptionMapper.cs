@@ -33,6 +33,7 @@ public class InscriptionMapper
     {
         return new InscriptionShort
         {
+            Id = i.Id,
             JoueurId = i.JoueurId,
             TournoiId = i.TournoiId,
             DateInscription = i.DateInscription
